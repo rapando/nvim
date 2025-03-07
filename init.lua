@@ -5,8 +5,7 @@
 --
 --]]
 
--- Load lazy.nvim 
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+-- Load lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -26,17 +25,15 @@ vim.opt.rtp:prepend(lazypath)
 -- Load general settings.
 require("general.config")
 
--- Load Lazy 
+-- Load Lazy
 require("lazy").setup({
-    spec = {
-      import = "plugins"
-    },
-    install = { colorscheme = { "habamax" } },
-    checker = { enabled = true },
+  spec = {
+    import = "plugins"
+  },
+  install = { colorscheme = { "habamax" } },
+  checker = { enabled = true },
 })
 
 
--- Load General keybindings 
+-- Load General keybindings
 require("general.keybindings")
-
-
