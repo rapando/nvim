@@ -15,17 +15,17 @@ vim.opt.clipboard:append("unnamedplus")
 -- Add fzf to the runtime path (rtp)
 vim.opt.rtp:append('/opt/homebrew/opt/fzf')
 vim.opt.incsearch = true            -- shows matches when you type
-vim.opt.textwidth = 0 -- disable wrap
+vim.opt.textwidth = 0               -- disable wrap
 vim.opt.wrap = false
 vim.opt.formatoptions:append('cro') -- auto wrap comments
 vim.opt.smartindent = true
 vim.opt.termguicolors = true
 vim.opt.lazyredraw = true
 -- change font
-vim.o.guifont = "Cousine:h18"
+vim.o.guifont = "AnonymicePro Nerd Font:h18"
 vim.o.lazyredraw = false
 
--- disable word wrap 
+-- disable word wrap
 vim.o.wrap = false
 
 -- Change leader.

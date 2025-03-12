@@ -13,4 +13,9 @@ return {
 		lazy = false,
 		priority = 1000,
 	},
+	{
+		"mhartington/oceanic-next",
+		lazy = false,
+		priority = 1000,
+	}
 }
