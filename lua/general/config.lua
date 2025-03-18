@@ -21,8 +21,10 @@ vim.opt.formatoptions:append('cro') -- auto wrap comments
 vim.opt.smartindent = true
 vim.opt.termguicolors = true
 vim.opt.lazyredraw = true
+
 -- change font
-vim.o.guifont = "AnonymicePro Nerd Font:h18"
+vim.o.guifont = "BitstromWera Nerd Font:h16"
+
 vim.o.lazyredraw = false
 
 -- disable word wrap
@@ -31,3 +33,4 @@ vim.o.wrap = false
 -- Change leader.
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
+
