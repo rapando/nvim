@@ -23,8 +23,7 @@ vim.opt.termguicolors = true
 vim.opt.lazyredraw = true
 
 -- change font
-vim.o.guifont = "BitstromWera Nerd Font:h16"
-
+vim.o.guifont = "Monaspace Argon:h16"
 vim.o.lazyredraw = false
 
 -- disable word wrap
