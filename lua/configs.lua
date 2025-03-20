@@ -333,7 +333,7 @@ require("telescope").setup {
 vim.o.background = "dark"
 
 -- set colorscheme
-vim.cmd("colorscheme lackluster")
+vim.cmd("colorscheme tokyonight")
 -- vim.opt.background = "dark"
 
 -- enable the tabline

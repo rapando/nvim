@@ -8,20 +8,9 @@ return {
 		end
 	},
 	-- themes
-	--[[
 	{
-		"navarasu/onedark.nvim",
+		"folke/tokyonight.nvim",
 		lazy = false,
-		priority = 1000,
-	},
-	{
-		"mhartington/oceanic-next",
-		lazy = false,
-		priority = 1000,
-	}, --]]
-	{
-		"slugbyte/lackluster.nvim",
-		lazy = false,
-		priority = 1000,
+		priority = 1000
 	}
 }
