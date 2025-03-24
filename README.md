@@ -73,14 +73,6 @@ are the ones I mostly use.
 | \<leader\>tf |  | Find Todos |
 | ]t |  | Find next TODO |
 | [t |  | Find Previous TODO |
-| F5 | Debugging | Start debugging |
-| F10 | | Step Over |
-| F11 | | Step Into |
-| F12 | | Step Out |
-| \<leader\>b | | Toggle Breakpoint |
-| \<leader\>B | | Set conditional breakpoint |
-| \<leader\>dr | | Restart debugging |
-| \<leader\>dq | | Stop Debugging |
 | gD | Golang | Go to symbol declaration |
 | gd | Golang/ Rust | Go to symbol definition |
 | K | Golang/ Rust | Hover over a symbol to see a summary |
@@ -114,16 +106,7 @@ Then inside `neovim`
 :MasonInstall gopls pyright rust-analyzer js-debug-adapter clang cmakelang cmakelint
 ```
 
-###### For debugging.
 
-Install debugging tools.
-
-```sh 
-sudo pip3 install -g debugpy
-cargo install codellb
-go install github.com/go-delve/delve/cmd/dlv@latest
-npm install -g vscode-js-debug
-```
 
 #### Usage
 
