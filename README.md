@@ -111,7 +111,7 @@ Then inside `neovim`
 
 ```sh 
 :Mason
-:MasonInstall gopls pyright rust-analyzer
+:MasonInstall gopls pyright rust-analyzer js-debug-adapter clang cmakelang cmakelint
 ```
 
 ###### For debugging.
