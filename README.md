@@ -58,21 +58,21 @@ are the ones I mostly use.
 | Binding | Language/ Tech | Explanation | 
 | :--- | :--- | :---|
 | \<leader\>gg | General | Opens Lazygit interface |
-| \<leader\>m | General | Open or close the file tree |
-| \<leader\>n or Right click| General | Open menu options |
-| \<leader\>v | General | Split vertically |
-| \<leader\>tt | General | Open terminal at the bottom |
-| \<leader\>f | General | Global search for a symbol |
-| \<leader\>o | General | Search for and open a file |
-| \<leader\>gc | General | Show Git status in floating window |
-| \<leader\>m | General | Multi-cursor select. \<A-n\> [more](https://github.com/mg979/vim-visual-multi?tab=readme-ov-file#vim-visual-multi) |
-| \<leader\>k | General | Show Symbols outline |
-| \<leader\>S | General | Open search interface |
-| \<leader\>sw | General | Search current word |
-| \<leader\>sp | General | Search current file |
-| \<leader\>tf | General | Find Todos |
-| ]t | General | Find next TODO |
-| [t | General | Find Previous TODO |
+| \<leader\>m |  | Open or close the file tree |
+| \<leader\>n or Right click|  | Open menu options |
+| \<leader\>v |  | Split vertically |
+| \<leader\>tt |  | Open terminal at the bottom |
+| \<leader\>f |  | Global search for a symbol |
+| \<leader\>o |  | Search for and open a file |
+| \<leader\>gc |  | Show Git status in floating window |
+| \<leader\>m |  | Multi-cursor select. \<A-n\> [more](https://github.com/mg979/vim-visual-multi?tab=readme-ov-file#vim-visual-multi) |
+| \<leader\>k |  | Show Symbols outline |
+| \<leader\>S |  | Open search interface |
+| \<leader\>sw |  | Search current word |
+| \<leader\>sp |  | Search current file |
+| \<leader\>tf |  | Find Todos |
+| ]t |  | Find next TODO |
+| [t |  | Find Previous TODO |
 | F5 | Debugging | Start debugging |
 | F10 | | Step Over |
 | F11 | | Step Into |
