@@ -73,6 +73,14 @@ are the ones I mostly use.
 | \<leader\>tf | General | Find Todos |
 | ]t | General | Find next TODO |
 | [t | General | Find Previous TODO |
+| F5 | Debugging | Start debugging |
+| F10 | | Step Over |
+| F11 | | Step Into |
+| F12 | | Step Out |
+| \<leader\>b | | Toggle Breakpoint |
+| \<leader\>B | | Set conditional breakpoint |
+| \<leader\>dr | | Restart debugging |
+| \<leader\>dq | | Stop Debugging |
 | gD | Golang | Go to symbol declaration |
 | gd | Golang/ Rust | Go to symbol definition |
 | K | Golang/ Rust | Hover over a symbol to see a summary |
@@ -80,6 +88,7 @@ are the ones I mostly use.
 |\<leader\>rr| Rust | Runnables, e.g cargo check |
 | \<leader\>rf | Rust | Format code |
 | \<leader\>ru | Rust | Organize imports |
+
 
 #### More commands
 
@@ -103,6 +112,17 @@ Then inside `neovim`
 ```sh 
 :Mason
 :MasonInstall gopls pyright rust-analyzer
+```
+
+###### For debugging.
+
+Install debugging tools.
+
+```sh 
+sudo pip3 install -g debugpy
+cargo install codellb
+go install github.com/go-delve/delve/cmd/dlv@latest
+npm install -g vscode-js-debug
 ```
 
 #### Usage

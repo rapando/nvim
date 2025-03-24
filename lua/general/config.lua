@@ -24,7 +24,7 @@ vim.opt.termguicolors = true
 vim.opt.lazyredraw = true
 
 -- change font
-vim.o.guifont = "CommitMono Nerd Font Mono:h16"
+vim.o.guifont = "AnonymicePro Nerd Font Mono:h16"
 vim.o.lazyredraw = false
 
 -- disable word wrap
