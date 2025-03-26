@@ -459,9 +459,3 @@ vim.keymap.set("n", "<leader>dx", function() dap.step_out() end, { desc = "Step 
 vim.keymap.set("n", "<Leader>b", function() dap.toggle_breakpoint() end, { desc = "Toggle Breakpoint" })
 vim.keymap.set("n", "<Leader>dr", function() dap.repl.open() end, { desc = "Open Debug Console" })
 vim.keymap.set("n", "<Leader>du", function() dapui.toggle() end, { desc = "Toggle DAP UI" })
-
-
--- vim.api.nvim_set_keymap("n", "<leader>dt", ":DapUiToggle<CR>", { noremap = true })
--- vim.api.nvim_set_keymap("n", "<leader>db", ":DapToggleBreakpoint<CR>", { noremap = true })
--- vim.api.nvim_set_keymap("n", "<leader>dc", ":DapContinue<CR>", { noremap = true })
--- vim.api.nvim_set_keymap("n", "<leader>dr", "lua require('dapui').open({reset = true})<CR>", { noremap = true })
