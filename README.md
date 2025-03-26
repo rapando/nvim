@@ -80,6 +80,18 @@ are the ones I mostly use.
 |\<leader\>rr| Rust | Runnables, e.g cargo check |
 | \<leader\>rf | Rust | Format code |
 | \<leader\>ru | Rust | Organize imports |
+| \<leader\>db | Debugging | Start debugging |
+| \<leader\>do |  | Step over |
+| \<leader\>di |  | Step Into |
+| \<leader\>dx |  | Step out |
+| \<leader\>b |  | Set breakpoint |
+| \<leader\>dr |  | Open debug console |
+| \<leader\>du |  | Toggle Dap UI |
+
+
+
+
+
 
 
 #### More commands
