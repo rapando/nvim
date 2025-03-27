@@ -87,14 +87,8 @@ are the ones I mostly use.
 | \<leader\>b |  | Set breakpoint |
 | \<leader\>dr |  | Open debug console |
 | \<leader\>du |  | Toggle Dap UI |
-| \<leader\>xx | Trouble | Toggle Trouble |
-| \<leader\>xw |  | Workspace diagnostics |
-| \<leader\>xd | | Document diagnostics |
-| \<leader\>xq | | Quickfix list |
-| \<leader\>xl | | Location list |
 | \<leader\>a | Aerial | Toggle code outline |
 | \<leader\>t | TODOs | Search TODOs |
-| \<leader\>xt | | Show TODOs in Trouble |
 
 #### More commands
 
