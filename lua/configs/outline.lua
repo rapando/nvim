@@ -1,10 +1,3 @@
-require("trouble").setup()
-vim.keymap.set("n", "<leader>xx", "<cmd>TroubleToggle<cr>", { desc = "Toggle Trouble" })
-vim.keymap.set("n", "<leader>xw", "<cmd>TroubleToggle workspace_diagnostics<cr>", { desc = "Workspace Diagnostics" })
-vim.keymap.set("n", "<leader>xd", "<cmd>TroubleToggle document_diagnostics<cr>", { desc = "Document Diagnostics" })
-vim.keymap.set("n", "<leader>xq", "<cmd>TroubleToggle quickfix<cr>", { desc = "Quickfix List" })
-vim.keymap.set("n", "<leader>xl", "<cmd>TroubleToggle loclist<cr>", { desc = "Location List" })
-
 -- symbol separator
 require("nvim-navic").setup({
     highlight = true,
@@ -45,4 +38,3 @@ vim.keymap.set("n", "<leader>a", "<cmd>AerialToggle!<CR>", { desc = "Toggle Aeri
 -- todo comments.
 require("todo-comments").setup()
 vim.keymap.set("n", "<leader>t", "<cmd>TodoTelescope<CR>", { desc = "Search TODOs" })
-vim.keymap.set("n", "<leader>xt", "<cmd>TodoTrouble<CR>", { desc = "Show TODOs in Trouble" })
