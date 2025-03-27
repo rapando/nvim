@@ -16,8 +16,6 @@ vim.opt.clipboard:append("unnamedplus")
 -- Add fzf to the runtime path (rtp)
 vim.opt.rtp:append('/opt/homebrew/opt/fzf')
 vim.opt.incsearch = true            -- shows matches when you type
-vim.opt.textwidth = 0               -- disable wrap
-vim.opt.wrap = false
 vim.opt.formatoptions:append('cro') -- auto wrap comments
 vim.opt.smartindent = true
 vim.opt.termguicolors = true
@@ -27,12 +25,11 @@ vim.opt.lazyredraw = true
 vim.o.guifont = "AnonymicePro Nerd Font Mono:h16"
 vim.o.lazyredraw = false
 
--- enable word wrap
-vim.opt.wrap = true
-vim.opt.linebreak = false
-vim.opt.colorcolumn = "100"
-
 -- Change leader.
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
+-- wrap
+vim.o.wrap = true
+vim.o.linebreak = false
+vim.o.virtualedit = "none"
