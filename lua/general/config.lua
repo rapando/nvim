@@ -33,3 +33,4 @@ vim.g.maplocalleader = "\\"
 vim.o.wrap = true
 vim.o.linebreak = false
 vim.o.virtualedit = "none"
+
