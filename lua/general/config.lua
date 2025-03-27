@@ -27,8 +27,10 @@ vim.opt.lazyredraw = true
 vim.o.guifont = "AnonymicePro Nerd Font Mono:h16"
 vim.o.lazyredraw = false
 
--- disable word wrap
-vim.o.wrap = false
+-- enable word wrap
+vim.opt.wrap = true
+vim.opt.linebreak = false
+vim.opt.colorcolumn = "100"
 
 -- Change leader.
 vim.g.mapleader = " "
