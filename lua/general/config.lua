@@ -22,7 +22,7 @@ vim.opt.termguicolors = true
 vim.opt.lazyredraw = true
 
 -- change font
-vim.o.guifont = "AnonymicePro Nerd Font Mono:h16"
+vim.o.guifont = "AnonymicePro Nerd Font Mono:h18"
 vim.o.lazyredraw = false
 
 -- Change leader.
@@ -31,5 +31,5 @@ vim.g.maplocalleader = "\\"
 
 -- wrap
 vim.o.wrap = true
-vim.o.linebreak = false
+vim.o.linebreak = true 
 vim.o.virtualedit = "none"
