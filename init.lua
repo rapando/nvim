@@ -39,4 +39,10 @@ require("lazy").setup({
 require("general.keybindings")
 
 -- Load configs
-require("configs")
+require("configs.debugging")
+require("configs.floating")
+require("configs.git")
+require("configs.lsp")
+require("configs.outline")
+require("configs.themes")
+require("configs.tree")

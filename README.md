@@ -87,12 +87,8 @@ are the ones I mostly use.
 | \<leader\>b |  | Set breakpoint |
 | \<leader\>dr |  | Open debug console |
 | \<leader\>du |  | Toggle Dap UI |
-
-
-
-
-
-
+| \<leader\>a | Aerial | Toggle code outline |
+| \<leader\>t | TODOs | Search TODOs |
 
 #### More commands
 
