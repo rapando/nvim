@@ -10,6 +10,11 @@ return {
 	-- themes
 	{
 		"folke/tokyonight.nvim",
+		lazy = true,
+		priority = 0
+	},
+	{
+		"catppuccin/nvim",
 		lazy = false,
 		priority = 1000
 	}

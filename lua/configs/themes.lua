@@ -3,7 +3,7 @@
 vim.o.background = "dark"
 
 -- set colorscheme
-vim.cmd("colorscheme tokyonight")
+vim.cmd("colorscheme catppuccin-mocha")
 -- vim.opt.background = "dark"
 
 -- enable the tabline
