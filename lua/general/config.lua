@@ -33,14 +33,5 @@ vim.o.wrap = true
 vim.o.linebreak = true 
 vim.o.virtualedit = "none"
 
--- numbering. relative number but NOT in Insert mode.
+-- numbering.
 vim.opt.number = true
-vim.opt.relativenumber = true
-vim.api.nvim_create_autocmd({"InsertEnter"}, {
-  callback = function() vim.opt.relativenumber = false end,
-})
-
-vim.api.nvim_create_autocmd({"InsertLeave"}, {
-  callback = function() vim.opt.relativenumber = true end,
-})
-
