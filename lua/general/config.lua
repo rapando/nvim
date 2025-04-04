@@ -4,7 +4,6 @@ vim.opt.tabstop = 4
 vim.opt.mouse = "a"
 vim.o.mousescroll = "ver:3,hor:0" -- prevent horizontal scrolling
 vim.opt.cursorline = true
-vim.opt.number = true
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = false
 -- vim.opt.guicursor = ""
@@ -33,3 +32,15 @@ vim.g.maplocalleader = "\\"
 vim.o.wrap = true
 vim.o.linebreak = true 
 vim.o.virtualedit = "none"
+
+-- numbering. relative number but NOT in Insert mode.
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.api.nvim_create_autocmd({"InsertEnter"}, {
+  callback = function() vim.opt.relativenumber = false end,
+})
+
+vim.api.nvim_create_autocmd({"InsertLeave"}, {
+  callback = function() vim.opt.relativenumber = true end,
+})
+
