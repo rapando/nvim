@@ -23,7 +23,7 @@ return {
 					col = "50%",  -- Centered horizontally
 				  },
 				  size = {
-					width = 60,  -- Set width of popup
+					width = 80,  -- Set width of popup
 					height = "auto",
 				  },
 				},

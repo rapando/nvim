@@ -15,7 +15,12 @@ return {
 	},
 	{
 		"catppuccin/nvim",
-		lazy = false,
-		priority = 1000
+		lazy = true,
+		priority = 0
+	},
+	{
+		"olimorris/onedarkpro.nvim",
+		priority = 1000,
+		lazy = false
 	}
 }
