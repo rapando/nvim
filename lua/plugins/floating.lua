@@ -19,11 +19,11 @@ return {
 				views = {
 				cmdline_popup = {
 				  position = {
-					row = 10,  -- Adjust vertical position (higher = moves down)
+					row = 5,  -- Adjust vertical position (higher = moves down)
 					col = "50%",  -- Centered horizontally
 				  },
 				  size = {
-					width = 60,  -- Set width of popup
+					width = 80,  -- Set width of popup
 					height = "auto",
 				  },
 				},

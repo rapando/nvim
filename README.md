@@ -15,7 +15,7 @@ First of all, install the prerequisites.
 the installation instructions of each prerequisite\</mark\>
 
 ```sh
-brew install neovim fd ripgrep fzf rust-analyzer lazygit cmake node@22
+brew install neovim fd ripgrep fzf rust-analyzer lazygit cmake node@22 clangd ccls tree-sitter llvm
 npm install -g typescript-language-server pyright luajit gcc
 rustup component add clippy-preview rust-src rustfmt
 

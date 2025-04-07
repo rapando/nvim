@@ -59,6 +59,27 @@ dap.configurations.rust = {
     },
 }
 
+-- C Debugging (lldb)
+dap.adapters.lldb = {
+	type = "executable",
+	command = "/usr/bin/lldb-vscode",
+	name = "lldb"
+}
+
+dap.configurations.c = {
+	{
+		name = "Launch",
+		type = "lldb",
+		request = "launch",
+		program = function()
+			return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
+		end,
+		cwd = "%{workspaceFolder}",
+		stopOnEntry = false,
+		args = {},
+	}
+}
+
 -- 🎮 Keybindings
 vim.keymap.set("n", "<leader>db", function() dap.continue() end, { desc = "Start Debugging" })
 vim.keymap.set("n", "<leader>do", function() dap.step_over() end, { desc = "Step Over" })
