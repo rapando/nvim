@@ -2,6 +2,21 @@ return {
     {
         "MunifTanjim/nui.nvim",
     },
+	{
+		"rcarriga/nvim-notify",
+		lazy = true,
+		config = function()
+			require("notify").setup({
+				top_down = false,
+				stages = "fade",
+				timeout = 1500,
+				render = "default",
+				background_colour = "#000000",
+				top_down = false,
+			})
+			vim.notify = require("notify")
+		end
+	},
     {
         "folke/noice.nvim",
 		dependencies = {
@@ -30,7 +45,6 @@ return {
 			  },
 			})
 
-			
 		end
     },
     {

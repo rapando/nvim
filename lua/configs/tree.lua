@@ -13,6 +13,7 @@ require("nvim-tree").setup({
         dotfiles = false, -- show all dotfiles by default
     },
     git = {
+		enable = false,
         ignore = false, -- Show gitignored files
     },
     renderer = {

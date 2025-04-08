@@ -20,12 +20,12 @@ return {
 	},
 	{
 		"olimorris/onedarkpro.nvim",
-		priority = 0,
-		lazy = true
+		priority = 1000,
+		lazy = false
 	},
 	{
 		"i3d/vim-jimbothemes",
-		priority = 1000,
-		lazy = false
+		priority = 0,
+		lazy = true
 	}
 }
