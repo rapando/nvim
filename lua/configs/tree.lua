@@ -6,7 +6,7 @@ vim.g.loaded_netrwPlugin = 1
 -- nvim-tree settings
 require("nvim-tree").setup({
     view = {
-        width = 30,
+        width = 25,
         side = "left",
     },
     filters = {
@@ -28,6 +28,19 @@ require("nvim-tree").setup({
     },
 })
 
+-- Patch for "No such group: --Detected--" bug in nvim tree
+local explorer_ok, explorer = pcall(require, "nvim-tree.explorer")
+if explorer_ok then
+    local original_destroy = explorer.destroy
+    explorer.destroy = function(self, ...)
+        local ok, _ = pcall(function()
+            if self._augroup then
+                vim.api.nvim_del_augroup_by_id(self._augroup)
+            end
+        end)
+        return original_destroy(self, ...)
+    end
+expand
 
 -- <leader-n> opens/closes nvim-tree
 vim.api.nvim_set_keymap("n", "<leader>n", ":NvimTreeToggle<CR>", { noremap = true, silent = true })
