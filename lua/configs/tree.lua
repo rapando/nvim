@@ -40,7 +40,7 @@ if explorer_ok then
         end)
         return original_destroy(self, ...)
     end
-expand
+end
 
 -- <leader-n> opens/closes nvim-tree
 vim.api.nvim_set_keymap("n", "<leader>n", ":NvimTreeToggle<CR>", { noremap = true, silent = true })
