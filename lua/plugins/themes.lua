@@ -20,6 +20,11 @@ return {
 	},
 	{
 		"olimorris/onedarkpro.nvim",
+		priority = 0,
+		lazy = true
+	},
+	{
+		"i3d/vim-jimbothemes",
 		priority = 1000,
 		lazy = false
 	}
