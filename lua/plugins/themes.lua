@@ -15,13 +15,13 @@ return {
 	},
 	{
 		"catppuccin/nvim",
-		lazy = true,
-		priority = 0
+		lazy = false,
+		priority = 1000
 	},
 	{
 		"olimorris/onedarkpro.nvim",
-		priority = 1000,
-		lazy = false
+		priority = 0,
+		lazy = true
 	},
 	{
 		"i3d/vim-jimbothemes",
