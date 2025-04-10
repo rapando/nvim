@@ -56,3 +56,23 @@ vim.api.nvim_set_keymap('n', '<leader>V', ':leftabove vsplit<CR>', { noremap = t
 -- Mapping to search for a file before opening it
 vim.api.nvim_set_keymap('n', '<leader>o', "<cmd>lua require('telescope.builtin').find_files()<CR>",
     { noremap = true, silent = true })
+
+
+-- BUFFER MANAGEMENT
+require("bufferline").setup({
+    options = {
+        show_buffer_close_icons = true,
+        show_buffer_icons = true,
+        separator_style = "thin",
+        always_show_bufferline = true,
+        max_name_length = 18,
+        right_mouse_command = "bdelete! %d", -- Right-click to close buffer 
+    }
+})
+
+-- Move to next buffer 
+vim.api.nvim_set_keymap('n', '<leader>bn', ':bnext<CR>', { noremap = true, silent = true })
+
+-- Move to previous buffer
+vim.api.nvim_set_keymap('n', '<leader>bp', ':bprev<CR>', { noremap = true, silent = true })
+

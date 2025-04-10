@@ -2,11 +2,14 @@
 return {
     {
         "nvim-tree/nvim-tree.lua",   
-        config = function()
-            require'nvim-tree'.setup()
-        end,
+		require = {
+			"kyazdani42/nvim-web-devicons",
+		},
     },
-    {
-      "kyazdani42/nvim-web-devicons",
-    }
+	{
+		"akinsho/bufferline.nvim",
+		require = {
+			"kyazdani42/nvim-web-devicons",
+		},
+	}
 }
