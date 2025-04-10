@@ -71,8 +71,8 @@ require("bufferline").setup({
 })
 
 -- Move to next buffer 
-vim.api.nvim_set_keymap('n', '<leader>bn', ':bnext<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '>', ':bnext<CR>', { noremap = true, silent = true })
 
 -- Move to previous buffer
-vim.api.nvim_set_keymap('n', '<leader>bp', ':bprev<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<', ':bprev<CR>', { noremap = true, silent = true })
 
