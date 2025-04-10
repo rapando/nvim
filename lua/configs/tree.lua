@@ -53,20 +53,7 @@ vim.api.nvim_set_keymap('n', '<leader>v', ':vsplit <A-R>=expand("%:p:h")<CR>/<A-
 -- Mapping to open file in a vertical split to the left
 vim.api.nvim_set_keymap('n', '<leader>V', ':leftabove vsplit<CR>', { noremap = true, silent = true })
 
--- Function to open file in a new buffer
-function open_file_in_new_buffer()
-  local selection = require('telescope.actions.state').get_selected_entry()
-  if selection then
-    vim.cmd('e ' .. selection.path)  -- Use `e` to open the file without replacing the current buffer
-  end
-end 
-
--- Keymap for Telescope to search and open files, ensuring new buffers are created
-vim.api.nvim_set_keymap('n', '<leader>o', "<cmd>lua require('telescope.builtin').find_files({ attach_mappings = function(_, map) map('i', '<CR>', function() open_file_in_new_buffer() end) return true end })<CR>", { noremap = true, silent = true })
-
-
-
--- vim.api.nvim_set_keymap('n', '<leader>o', "<cmd>lua require('telescope.builtin').find_files()<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>o', "<cmd>lua require('telescope.builtin').find_files()<CR>", { noremap = true, silent = true })
 
 
 -- BUFFER MANAGEMENT
