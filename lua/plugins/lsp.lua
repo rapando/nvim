@@ -1,20 +1,20 @@
-
 return {
-	{
-		"Bekaboo/dropbar.nvim",
-		dependencies = {
-			"nvim-telescope/telescope-fzf-native.nvim",
-			build = "make"
-		}
-	},
-	{
-		"yamatsum/nvim-cursorline",
-	},
+    {
+        "Bekaboo/dropbar.nvim",
+        dependencies = {
+            "nvim-telescope/telescope-fzf-native.nvim",
+            build = "make"
+        }
+    },
+    {
+        "yamatsum/nvim-cursorline",
+    },
     {
         "jiangmiao/auto-pairs",
     },
     {
         "neovim/nvim-lspconfig",
+        event = { "BufReadPre", "BufNewFile" },
         dependencies = {
             "williamboman/mason.nvim",
             "williamboman/mason-lspconfig.nvim",
@@ -27,11 +27,17 @@ return {
             local lspconfig = require("lspconfig")
             lspconfig.ts_ls.setup {}
             lspconfig.pyright.setup {}
-			lspconfig.intelephense.setup({
-				cmd = { "intelephense", "--stdio" },
-				filetypes = { "php" },
-				root_dir = lspconfig.util.root_pattern("composer.json", ".git"),
-			})
+
+            lspconfig.volar.setup({
+                filetypes = {
+                    "typescript",
+                    "javascript",
+                    "javascriptreact",
+                    "typescriptreact",
+                    "vue",
+                    "json"
+                },
+            })
         end,
         opts = function()
             setup = {
@@ -50,7 +56,7 @@ return {
             "saadparwaiz1/cmp_luasnip", -- Snippet source for nvim-cmp
             "hrsh7th/cmp-buffer",
             "hrsh7th/cmp-path",
-			"hrsh7th/cmp-cmdline",
+            "hrsh7th/cmp-cmdline",
         },
         config = function()
             local cmp = require("cmp")
