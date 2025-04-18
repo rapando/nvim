@@ -27,17 +27,6 @@ return {
             local lspconfig = require("lspconfig")
             lspconfig.ts_ls.setup {}
             lspconfig.pyright.setup {}
-
-            lspconfig.volar.setup({
-                filetypes = {
-                    "typescript",
-                    "javascript",
-                    "javascriptreact",
-                    "typescriptreact",
-                    "vue",
-                    "json"
-                },
-            })
         end,
         opts = function()
             setup = {

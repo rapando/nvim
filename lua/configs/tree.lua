@@ -57,7 +57,7 @@ vim.api.nvim_set_keymap('n', '<leader>o', "<cmd>lua require('telescope.builtin')
 
 
 -- BUFFER MANAGEMENT
-require("bufferline").setup({
+--[[require("bufferline").setup({
     options = {
         show_buffer_close_icons = true,
         show_buffer_icons = true,
@@ -73,4 +73,4 @@ vim.api.nvim_set_keymap('n', '>', ':bnext<CR>', { noremap = true, silent = true 
 
 -- Move to previous buffer
 vim.api.nvim_set_keymap('n', '<', ':bprev<CR>', { noremap = true, silent = true })
-
+]]

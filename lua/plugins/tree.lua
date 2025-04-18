@@ -6,10 +6,11 @@ return {
 			"kyazdani42/nvim-web-devicons",
 		},
     },
+	--[[
 	{
 		"akinsho/bufferline.nvim",
 		require = {
 			"kyazdani42/nvim-web-devicons",
 		},
-	}
+	} ]]
 }
