@@ -10,18 +10,18 @@ return {
 	-- themes
 	{
 		"folke/tokyonight.nvim",
-		lazy = true,
+		lazy = true, 
 		priority = 0
 	},
 	{
 		"catppuccin/nvim",
-		lazy = false,
-		priority = 1000
+		lazy = true,
+		priority = 0
 	},
 	{
 		"olimorris/onedarkpro.nvim",
-		priority = 0,
-		lazy = true
+		priority = 1000,
+		lazy = false
 	},
 	{
 		"i3d/vim-jimbothemes",

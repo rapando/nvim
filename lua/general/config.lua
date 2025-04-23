@@ -1,7 +1,7 @@
 -- General Configs that apply everywhere.
 
 vim.opt.tabstop = 4
-vim.opt.mouse = "a"
+-- vim.opt.mouse = "a"
 vim.o.mousescroll = "ver:3,hor:0" -- prevent horizontal scrolling
 vim.opt.cursorline = true
 vim.opt.shiftwidth = 4
