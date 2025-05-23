@@ -2,7 +2,7 @@
 
 vim.opt.tabstop = 4
 -- vim.opt.mouse = "a"
-vim.o.relativenumber = true
+-- vim.o.relativenumber = true
 vim.o.mousescroll = "ver:3,hor:0" -- prevent horizontal scrolling
 vim.opt.cursorline = true
 vim.opt.shiftwidth = 4
