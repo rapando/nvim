@@ -21,7 +21,7 @@ vim.opt.termguicolors = true
 vim.opt.lazyredraw = true
 
 -- change font
-vim.o.guifont = "AnonymicePro Nerd Font Mono:h18"
+vim.o.guifont = "CommitMono Nerd Font Mono:h18"
 vim.o.lazyredraw = false
 
 -- Change leader.

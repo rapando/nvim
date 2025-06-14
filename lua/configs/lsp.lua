@@ -34,6 +34,7 @@ lspconfig.gopls.setup {
         buf_set_keymap('n', ']d', '<Cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
         buf_set_keymap('n', '<leader>q', '<Cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
         buf_set_keymap('n', '<leader>so', [[<Cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>]], opts)
+		buf_set_keymap('n', 'ggd', '<Cmd>lua vim.diagnostic.open_float()<CR>')
     end,
 
     flags = {
