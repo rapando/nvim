@@ -76,6 +76,10 @@ are the ones I mostly use.
 | gD | Golang | Go to symbol declaration |
 | gd | Golang/ Rust | Go to symbol definition |
 | K | Golang/ Rust | Hover over a symbol to see a summary |
+| gl| Golang | Show diagnostics |
+| [d | Golang | Previous diagnostic |
+| ]d | Golang | Next Diagnostic |
+| \<leader\>dl | Golang | Diagnostics location List |
 | \<leader\>c | Rust | Code actions e.g optimizing import structure |
 |\<leader\>rr| Rust | Runnables, e.g cargo check |
 | \<leader\>rf | Rust | Format code |
