@@ -43,7 +43,6 @@ lspconfig.gopls.setup {
 }
 
 
-
 vim.cmd [[ command! Format execute 'lua vim.lsp.buf.formatting()' ]]
 
 -- Go Linting
@@ -288,3 +287,18 @@ require("telescope").setup {
         }
     }
 }
+
+
+
+-- Show diagnostics in a floating window on `gl`
+vim.keymap.set('n', 'gl', vim.diagnostic.open_float, { desc = "Show diagnostics" })
+
+-- Go to next/previous diagnostic
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = "Prev diagnostic" })
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+
+-- Set location list
+vim.keymap.set('n', '<leader>dl', function()
+  vim.diagnostic.setloclist()
+end, { desc = "Diagnostics to location list" })
+
