@@ -11,21 +11,26 @@ return {
 	{
 		"folke/tokyonight.nvim",
 		lazy = true, 
-		priority = 0
+		priority = 1000
 	},
 	{
 		"catppuccin/nvim",
 		lazy = true,
-		priority = 0
+		priority = 1000
 	},
 	{
 		"olimorris/onedarkpro.nvim",
 		priority = 1000,
-		lazy = false
+		lazy = true,
 	},
 	{
 		"i3d/vim-jimbothemes",
-		priority = 0,
-		lazy = true
+		priority = 1000,
+		lazy = true,
+	},
+	{
+		"sainnhe/gruvbox-material",
+		priority = 1000,
+		lazy = true,
 	}
 }
