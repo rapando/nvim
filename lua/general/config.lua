@@ -19,6 +19,7 @@ vim.opt.formatoptions:append('cro') -- auto wrap comments
 vim.opt.smartindent = true
 vim.opt.termguicolors = true
 vim.opt.lazyredraw = true
+vim.opt.ignorecase = true
 
 -- change font
 vim.o.guifont = "CommitMono Nerd Font Mono:h18"
