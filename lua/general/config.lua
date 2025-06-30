@@ -20,9 +20,9 @@ vim.opt.smartindent = true
 vim.opt.termguicolors = true
 vim.opt.lazyredraw = true
 vim.opt.ignorecase = true
-
+-- vim.opt.relativenumber = true
 -- change font
-vim.o.guifont = "CommitMono Nerd Font Mono:h18"
+vim.o.guifont = "CommitMono Nerd Font Mono:h16"
 vim.o.lazyredraw = false
 
 -- Change leader.
