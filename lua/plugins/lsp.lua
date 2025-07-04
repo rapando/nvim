@@ -10,6 +10,10 @@ return {
         "yamatsum/nvim-cursorline",
     },
     {
+      'vim-perl/vim-perl',
+      ft = 'perl'
+    },
+    {
         "jiangmiao/auto-pairs",
     },
     {
