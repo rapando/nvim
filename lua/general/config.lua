@@ -37,3 +37,4 @@ vim.o.virtualedit = "none"
 -- numbering.
 -- vim.opt.number = true
 vim.opt.relativenumber = true
+set number = true
