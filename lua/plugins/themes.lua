@@ -32,5 +32,11 @@ return {
 		"sainnhe/gruvbox-material",
 		priority = 1000,
 		lazy = true,
+	},
+	{
+		"Mofiqul/dracula.nvim",
+		name = "chadracula",
+		priority = 1000,
+		lazy = true,
 	}
 }
