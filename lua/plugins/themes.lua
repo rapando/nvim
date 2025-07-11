@@ -9,34 +9,8 @@ return {
 	},
 	-- themes
 	{
-		"folke/tokyonight.nvim",
-		lazy = true, 
-		priority = 1000
-	},
-	{
-		"catppuccin/nvim",
-		lazy = true,
-		priority = 1000
-	},
-	{
-		"olimorris/onedarkpro.nvim",
+		"ribru17/bamboo.nvim",
+		lazy = false,
 		priority = 1000,
-		lazy = true,
-	},
-	{
-		"i3d/vim-jimbothemes",
-		priority = 1000,
-		lazy = true,
-	},
-	{
-		"sainnhe/gruvbox-material",
-		priority = 1000,
-		lazy = true,
-	},
-	{
-		"Mofiqul/dracula.nvim",
-		name = "chadracula",
-		priority = 1000,
-		lazy = true,
 	}
 }
