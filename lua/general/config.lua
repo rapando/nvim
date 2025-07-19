@@ -37,7 +37,3 @@ vim.o.virtualedit = "none"
 -- numbering.
 vim.opt.number = true
 -- vim.opt.relativenumber = true
-
--- keep file tree open
-vim.g.nvim_tree_respect_buf_cwd = 1
-vim.g.nvim_tree_tab_open = 1
