@@ -20,3 +20,10 @@ map("n", "<leader>tx", ":tabclose<CR>", opts)
 map("n", "tf", function()
     require("telescope.builtin").tabs()
 end, { desc = "Find Tab" })
+
+map("n", "<leader>tr", function()
+    local name = vim.fn.input("Rename tab: ")
+    if name ~= "" then
+        vim.t.tab_name = name
+    end
+end, { desc = "Rename Tab" })
