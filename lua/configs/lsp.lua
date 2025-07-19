@@ -34,7 +34,7 @@ lspconfig.gopls.setup {
         buf_set_keymap('n', ']d', '<Cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
         buf_set_keymap('n', '<leader>q', '<Cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
         buf_set_keymap('n', '<leader>so', [[<Cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>]], opts)
-		buf_set_keymap('n', '<leader>g', '<Cmd>lua vim.diagnostic.open_float()<CR>')
+        buf_set_keymap('n', '<leader>g', '<Cmd>lua vim.diagnostic.open_float()<CR>')
     end,
 
     flags = {
@@ -124,7 +124,6 @@ cmp.setup({
     },
     mapping = {
         ['<A-Space'] = cmp.mapping.complete(),
-        ['<CR>'] = cmp.mapping.confirm({ select = true }),
         ['<A-b>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
         ['<A-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
         -- ['<A-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
@@ -178,54 +177,6 @@ require('nvim_comment').setup({
     hook = function()
         require('ts_context_commentstring.internal').update_commentstring()
     end,
-})
-
--- RUST
-local rt = require("rust-tools")
-
--- delay alerts
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
-    timeout = 5000, -- 5 seconds
-})
-
-rt.setup({
-    tools = {
-        autoSetHints = true,
-        inlay_hints = {
-            show_parameter_hints = true,
-            parameter_hints_prefix = "<- ",
-            other_hints_prefix = "=> ",
-        },
-    },
-    server = {
-        on_attach = function(client, bufnr)
-            local bufopts = { noremap = true, silent = true, buffer = bufnr }
-            -- Keybindings for LSP
-            vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
-            vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)
-            vim.keymap.set("n", "<Leader>c", rt.code_action_group.code_action_group, bufopts)
-            vim.keymap.set("n", "<Leader>rr", rt.runnables.runnables, bufopts)
-            vim.keymap.set("n", "<Leader>rf", function()
-                vim.lsp.buf.format({ async = false })
-            end)
-            vim.keymap.set("n", "<Leader>ru", function()
-                vim.lsp.buf.code_action({
-                    only = { 'source.organizeImports' },
-                })
-            end)
-        end,
-        settings = {
-            ["rust-analyzer"] = {
-                diagnostics = {
-                    enable = true,
-                    disabled = { "warnings" },
-                },
-                cargo = { watch = false },
-                checkOnSave = { command = "clippy" },
-                memory = { max = 2048 },
-            },
-        },
-    },
 })
 
 
@@ -301,4 +252,3 @@ vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = "Next diagnostic" }
 -- vim.keymap.set('n', '<leader>dl', function()
 --  vim.diagnostic.setloclist()
 -- end, { desc = "Diagnostics to location list" })
-

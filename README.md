@@ -3,10 +3,7 @@
 
 ### Introduction
 
-This is just a personal neovim configs for mainly Rust, Go and JS. C & Python might not be fully
-supported and in case you find any bugs please raise and issue/ PR to contribute.
-
-This assumes you have Go & Rust installed.
+This is just a personal neovim configs for mainly Go
 
 ### Installation
 
@@ -15,9 +12,8 @@ First of all, install the prerequisites.
 the installation instructions of each prerequisite\</mark\>
 
 ```sh
-brew install neovim fd ripgrep fzf rust-analyzer lazygit cmake node@22 clangd ccls tree-sitter llvm
+brew install neovim fd ripgrep fzf git lazygit cmake clangd 
 npm install -g typescript-language-server pyright luajit gcc
-rustup component add clippy-preview rust-src rustfmt
 
 
 # because neovim requires lua version 5.1 for some reason, install it manually
@@ -74,16 +70,13 @@ are the ones I mostly use.
 | ]t |  | Find next TODO |
 | [t |  | Find Previous TODO |
 | gD | Golang | Go to symbol declaration |
-| gd | Golang/ Rust | Go to symbol definition |
-| K | Golang/ Rust | Hover over a symbol to see a summary |
+| gd | Golang | Go to symbol definition |
+| K | Golang | Hover over a symbol to see a summary |
 | gl| Golang | Show diagnostics |
 | [d | Golang | Previous diagnostic |
 | ]d | Golang | Next Diagnostic |
 | \<leader\>dl | Golang | Diagnostics location List |
-| \<leader\>c | Rust | Code actions e.g optimizing import structure |
-|\<leader\>rr| Rust | Runnables, e.g cargo check |
-| \<leader\>rf | Rust | Format code |
-| \<leader\>ru | Rust | Organize imports |
+| \<leader\>c  | Code actions e.g optimizing import structure |
 | \<leader\>db | Debugging | Start debugging |
 | \<leader\>do |  | Step over |
 | \<leader\>di |  | Step Into |
@@ -115,7 +108,7 @@ Then inside `neovim`
 
 ```sh 
 :Mason
-:MasonInstall gopls pyright rust-analyzer js-debug-adapter clang cmakelang cmakelint
+:MasonInstall gopls pyright js-debug-adapter clang cmakelang cmakelint
 ```
 
 

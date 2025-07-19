@@ -36,48 +36,27 @@ dap.configurations.go = {
     },
 }
 
--- 🦀 Rust Debugging (codelldb)
-dap.adapters.lldb = {
-    type = "server",
-    port = "${port}",
-    executable = {
-        command = "codelldb",
-        args = { "--port", "${port}" },
-    },
-}
 
-dap.configurations.rust = {
-    {
-        name = "Debug",
-        type = "lldb",
-        request = "launch",
-        program = function()
-            return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/target/debug/", "file")
-        end,
-        cwd = "${workspaceFolder}",
-        stopOnEntry = false,
-    },
-}
 
 -- C Debugging (lldb)
 dap.adapters.lldb = {
-	type = "executable",
-	command = "/usr/bin/lldb-vscode",
-	name = "lldb"
+    type = "executable",
+    command = "/usr/bin/lldb-vscode",
+    name = "lldb"
 }
 
 dap.configurations.c = {
-	{
-		name = "Launch",
-		type = "lldb",
-		request = "launch",
-		program = function()
-			return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
-		end,
-		cwd = "%{workspaceFolder}",
-		stopOnEntry = false,
-		args = {},
-	}
+    {
+        name = "Launch",
+        type = "lldb",
+        request = "launch",
+        program = function()
+            return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
+        end,
+        cwd = "%{workspaceFolder}",
+        stopOnEntry = false,
+        args = {},
+    }
 }
 
 -- 🎮 Keybindings

@@ -10,8 +10,8 @@ return {
         "yamatsum/nvim-cursorline",
     },
     {
-      'vim-perl/vim-perl',
-      ft = 'perl'
+        'vim-perl/vim-perl',
+        ft = 'perl'
     },
     {
         "jiangmiao/auto-pairs",
@@ -32,13 +32,6 @@ return {
             lspconfig.ts_ls.setup {}
             lspconfig.pyright.setup {}
         end,
-        opts = function()
-            setup = {
-                rust_analyzer = function()
-                    return true
-                end
-            }
-        end
     },
     {
         "hrsh7th/nvim-cmp",
@@ -95,7 +88,6 @@ return {
         build = ":GoUpdateBinaries",
         ft = { "go" }
     },
-    -- Rust
     {
         'nvim-treesitter/nvim-treesitter',
         build = ':TSUpdate',
@@ -107,7 +99,6 @@ return {
             require("nvim-treesitter.configs").setup(opts)
         end,
     },
-    { 'simrat39/rust-tools.nvim' },
     { 'nvim-lua/plenary.nvim' },
     {
         'terrortylor/nvim-comment',

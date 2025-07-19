@@ -5,6 +5,3 @@ vim.api.nvim_set_keymap('n', '<leader>r', ':redraw!<CR>', { noremap = true, sile
 
 -- manual formatting
 vim.keymap.set('n', 'gq', 'gq', { noremap = true, silent = true })
-
-
-
