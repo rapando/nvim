@@ -11,10 +11,10 @@ local map = vim.keymap.set
 local opts = { noremap = true, silent = true }
 
 -- Tabs
-map("n", "tt", ":tabnew<CR>", opts)
-map("n", "tn", ":tabnext<CR>", opts)
-map("n", "tp", ":tabprevious<CR>", opts)
-map("n", "tx", ":tabclose<CR>", opts)
+map("n", "<leader>tt", ":tabnew<CR>", opts)
+map("n", "<leader>tn", ":tabnext<CR>", opts)
+map("n", "<leader>tp", ":tabprevious<CR>", opts)
+map("n", "<leader>tx", ":tabclose<CR>", opts)
 
 -- Tab finder using Telescope
 map("n", "tf", function()
