@@ -28,6 +28,9 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.hlsearch = false
 
+-- Clipboard
+vim.opt.clipboard = "unnamedplus"
+
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -74,6 +77,14 @@ require("lazy").setup({
             horizontal = {
               preview_width = 0.55,
             },
+          },
+          preview = {
+            treesitter = false,
+          },
+        },
+        pickers = {
+          find_files = {
+            previewer = true,
           },
         },
         extensions = {
@@ -267,9 +278,11 @@ require("lazy").setup({
       local ok, ts = pcall(require, "nvim-treesitter.configs")
       if ok then
         ts.setup({
-          ensure_installed = { "go", "c", "python", "lua", "vim", "markdown" },
+          ensure_installed = { "go", "c", "python", "lua", "vim", "markdown", "json" },
+          auto_install = true,
           highlight = {
             enable = true,
+            additional_vim_regex_highlighting = { "markdown" },
           },
           indent = {
             enable = true,
