@@ -50,11 +50,13 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   -- Theme
   {
-    "folke/tokyonight.nvim",
+    "catppuccin/nvim",
+    name = "catppuccin",
     lazy = false,
     priority = 1000,
     config = function()
-      vim.cmd([[colorscheme tokyonight-night]])
+      require("catppuccin").setup({ flavour = "mocha" })
+      vim.cmd([[colorscheme catppuccin]])
     end,
   },
 
@@ -324,7 +326,7 @@ require("lazy").setup({
     config = function()
       require("lualine").setup({
         options = {
-          theme = "tokyonight",
+          theme = "catppuccin",
         },
       })
     end,
