@@ -1,254 +1,126 @@
 # Neovim Configuration
 
-A modern Neovim setup for Go, C, and Python development with LSP support, fuzzy finding, and autocomplete.
+A modern Neovim setup for Go, C, and Python development with LSP, autocomplete, fuzzy finding, and auto-formatting.
 
-## Features
+## Prerequisites
 
-- **Language Support**: Go, C, Python (with pipenv support)
-- **LSP**: Go (gopls), C (clangd), Python (pyright)
-- **Fuzzy Finding**: Telescope for file and project search
-- **Autocomplete**: LSP-powered with snippet support
-- **File Explorer**: nvim-tree for easy navigation
-- **Split Support**: Horizontal and vertical splits
-- **Python Virtual Environments**: Auto-detect pipenv environments
-- **Syntax Highlighting**: Treesitter for all supported languages
+- Neovim >= 0.9.0
+- Git, curl, make
+
+**LSP servers:**
+```bash
+go install github.com/golang/tools/gopls@latest          # Go
+brew install llvm                                          # C (macOS)
+pip install pyright                                        # Python
+```
+
+**Formatters:**
+```bash
+go install golang.org/x/tools/cmd/goimports@latest
+go install github.com/dinkur/golines@latest
+pip install black isort
+brew install clang-format stylua prettier
+```
+
+**Optional (recommended):**
+```bash
+brew install fd ripgrep   # faster file search
+brew install lazygit      # git TUI
+```
 
 ## Installation
 
-### Prerequisites
+Clone or copy config to `~/.config/nvim/`, then open Neovim — lazy.nvim bootstraps and installs all plugins automatically on first launch.
 
-Make sure you have the following LSP servers installed:
-
-```bash
-# Go
-go install github.com/golang/tools/gopls@latest
-
-# C
-brew install llvm  # macOS - includes clangd
-
-# Python
-pip install pyright
-
-# Neovim >= 0.9.0
-nvim --version
-```
-
-### First Run
-
-When you open Neovim for the first time, lazy.nvim will automatically:
-1. Clone itself to `~/.local/share/nvim/lazy/lazy.nvim`
-2. Install all plugins
-3. Compile plugins (may take a minute on first launch)
-
-Just be patient and let it finish. Everything will be set up automatically.
-
-## Keyboard Shortcuts
+## Key Bindings
 
 ### Navigation
+| Key | Action |
+|-----|--------|
+| `<C-h/j/k/l>` | Move between splits |
+| `<leader>sh/sv` | Split horizontal / vertical |
+| `<leader>sc` | Close split |
 
-| Shortcut | Action |
-|----------|--------|
-| `<C-h>` | Move to left split |
-| `<C-j>` | Move to bottom split |
-| `<C-k>` | Move to top split |
-| `<C-l>` | Move to right split |
-
-### Splits
-
-| Shortcut | Action |
-|----------|--------|
-| `<leader>sh` | Split horizontally |
-| `<leader>sv` | Split vertically |
-| `<leader>sc` | Close current split |
-
-### File & Project Search
-
-| Shortcut | Action |
-|----------|--------|
-| `<leader>ff` | Find files in project |
-| `<leader>fg` | Live grep (search project) |
+### Files & Search
+| Key | Action |
+|-----|--------|
+| `<leader>ff` | Find files |
+| `<leader>fg` | Live grep |
 | `<leader>fb` | Find open buffers |
 | `<leader>/` | Search in current file |
-| `<leader>fh` | Search help tags |
 
-### Code Navigation & Editing
-
-| Shortcut | Action |
-|----------|--------|
+### LSP
+| Key | Action |
+|-----|--------|
 | `gd` | Go to definition |
 | `gr` | Go to references |
-| `K` | Show hover documentation |
+| `K` | Hover docs |
 | `<leader>rn` | Rename symbol |
-| `<leader>ca` | Code action (e.g., quick fixes) |
+| `<leader>ca` | Code action |
 | `<leader>e` | Show diagnostics |
 
-### File Explorer
-
-| Shortcut | Action |
-|----------|--------|
-| `<leader>e` | Toggle file explorer (nvim-tree) |
-
-*Note: This conflicts with showing diagnostics. Use `K` for hover info first, or press `<leader>e` twice to use the explorer.*
-
 ### Completion
+| Key | Action |
+|-----|--------|
+| `<C-Space>` | Trigger completion |
+| `<Tab>/<S-Tab>` | Next / prev item |
+| `<CR>` | Confirm |
+| `<C-e>` | Abort |
 
-| Shortcut | Action |
-|----------|--------|
-| `<C-Space>` | Trigger completion menu |
-| `<Tab>` | Select next item / expand snippet |
-| `<S-Tab>` | Select previous item / jump back in snippet |
-| `<C-b>` | Scroll completion menu up |
-| `<C-f>` | Scroll completion menu down |
-| `<C-e>` | Abort completion |
-| `<CR>` | Confirm completion |
+### Other
+| Key | Action |
+|-----|--------|
+| `<leader>gg` | Open Lazygit |
+| `<leader>cf` | Format file / selection |
+| `<leader>e` | Toggle file explorer |
+| `<leader>vs` | Select Python venv |
 
-### Python Virtual Environments
+## Features
 
-| Shortcut | Action |
-|----------|--------|
-| `<leader>vs` | Manually select virtual environment |
-
-**Automatic Detection**: If your Python project has a `Pipfile`, the pipenv environment is automatically activated when you open Python files.
-
-## Configuration
-
-### Default Settings
-
-- **Tab size**: 4 spaces (expandtab enabled)
-- **Line numbers**: Absolute with relative line numbers
-- **Auto-indent**: Smart indent enabled
-- **Split behavior**: New splits open to the right/bottom
-- **Color scheme**: TokyoNight (dark theme)
-- **Text wrapping**: Disabled (line wrapping disabled)
-- **Scroll offset**: 8 lines (keeps cursor away from edges)
-
-### Customization
-
-Edit `~/.config/nvim/init.lua` to customize:
-
-- **Color scheme**: Search for `vim.cmd([[colorscheme` and change to your preferred theme
-- **Tab size**: Change `vim.opt.tabstop = 4` to your preferred size
-- **LSP settings**: Modify language server configs in the LSP section
-- **Keybindings**: Add/modify in the keymaps sections
-
-## Project Detection
-
-The configuration automatically:
-
-1. **Detects project root**: Uses `.git` directory to find the project root
-2. **Changes working directory**: Automatically cd's to project root when opening files
-3. **Loads pipenv**: Automatically activates pipenv virtual environment for Python projects
-
-## Tips & Tricks
-
-### Large Project Performance
-
-For very large projects, telescope might be slow initially. You can:
-
-1. Make sure you have `fd` installed: `brew install fd`
-2. The config uses fzf-native which is faster than default sorting
-3. Use `.gitignore` - telescope respects it and won't search ignored files
-
-### Using Telescope
-
-- Type to filter results
-- `<C-j>` / `<C-k>` to navigate results
-- `<CR>` to open the selected file
-- `<C-x>` to split horizontally
-- `<C-v>` to split vertically
-- `<C-t>` to open in a new tab
-
-### Go Development
-
-The gopls server supports:
-
-- Code completion
-- Definition jumping
-- References
-- Hover documentation
-- Rename
-- Format on save (add custom keybinding if desired)
-
-### C Development
-
-clangd provides:
-
-- Intelligent completion
-- Definition/reference jumping
-- Include path resolution
-- Diagnostics
-
-### Python Development
-
-pyright supports:
-
-- Type checking
-- Auto-completion
-- Definition jumping
-- Virtual environment detection
-- Pipenv support (automatic)
+- **LSP**: gopls (Go), clangd (C), pyright (Python)
+- **Completion**: nvim-cmp with LSP, snippets, buffer, and path sources
+- **Auto-format on save**: goimports + golines (Go), black + isort (Python), clang-format (C), stylua (Lua), prettier (MD/JSON/YAML)
+- **Auto-pairs**: brackets, quotes, and parens closed automatically
+- **File explorer**: nvim-tree (shows hidden files)
+- **Fuzzy finder**: Telescope with fzf-native
+- **Markdown**: inline rendering via render-markdown.nvim
+- **Lazygit**: full git TUI via `<leader>gg` (requires `lazygit` installed)
+- **Treesitter**: enhanced syntax highlighting
+- **Project root**: auto-cd to `.git` root on buffer enter
+- **Pipenv**: auto-activates virtualenv for Python projects with a `Pipfile`
 
 ## Troubleshooting
 
-### LSP not working
+| Problem | Fix |
+|---------|-----|
+| LSP not working | `which gopls/clangd/pyright`, then `:LspInfo` |
+| Plugins not installing | `rm -rf ~/.local/share/nvim/lazy`, reopen Neovim |
+| Telescope empty | Install `fd`; ensure you're in a git repo |
+| Formatter not found | Install it, verify with `which <formatter>`, restart Neovim |
+| Colors wrong | Use a true-color terminal (iTerm2, Kitty, Alacritty); set `TERM=xterm-256color` |
 
-1. Check if the language server is installed: `which gopls` / `which clangd` / `which pyright`
-2. Open a file of that type
-3. Run `:LspInfo` to see LSP status
-4. Check `:messages` for error messages
+Run `:checkhealth` inside Neovim for a full diagnostic.
 
-### Plugins not installing
+## License
 
-1. Close Neovim completely
-2. Delete `~/.local/share/nvim/lazy` directory
-3. Reopen Neovim and let it reinstall
+MIT License
 
-### Telescope finding nothing
+Copyright (c) 2025 Samson Rapando
 
-1. Make sure you have `fd` installed: `brew install fd`
-2. Check if you're in a Git repository (telescope respects `.git`)
-3. Try `:Telescope live_grep` and type manually to search
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-### Pipenv not loading
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-1. Make sure you have a `Pipfile` in your project root
-2. Run `:messages` to see if there are any errors
-3. Manually select environment with `<leader>vs`
-
-## Color Scheme
-
-The default color scheme is **TokyoNight (dark)**. To change it:
-
-1. Open `init.lua`
-2. Find the theme section (folke/tokyonight)
-3. Replace with your preferred theme from [awesome-neovim](https://github.com/rockerBOO/awesome-neovim#colorscheme)
-
-Popular alternatives:
-- `catppuccin/nvim` - Warm pastels
-- `gruvbox-community/gruvbox` - Warm, retro colors
-- `dracula/vim` - Dark vampire theme
-
-## Plugin Management
-
-This config uses **lazy.nvim** for plugin management. To update plugins:
-
-```bash
-# From within Neovim
-:Lazy update
-```
-
-## Support
-
-For issues with:
-
-- **Neovim config**: Check `init.lua` and `:messages`
-- **Language servers**: Run `:LspInfo` to diagnose
-- **Lazy.nvim**: Run `:Lazy` to see plugin status
-- **Telescope**: Try `:checkhealth` for debugging
-
-## Resources
-
-- [Neovim Documentation](https://neovim.io)
-- [LSP Configurations](https://github.com/neovim/nvim-lspconfig)
-- [Telescope Docs](https://github.com/nvim-telescope/telescope.nvim)
-- [Lazy.nvim Guide](https://github.com/folke/lazy.nvim)
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

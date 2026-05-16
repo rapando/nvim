@@ -85,6 +85,7 @@ require("lazy").setup({
         pickers = {
           find_files = {
             previewer = true,
+            hidden = true,
           },
         },
         extensions = {
@@ -265,8 +266,31 @@ require("lazy").setup({
         view = {
           width = 30,
         },
+        filters = {
+          dotfiles = false,
+        },
       })
       vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
+    end,
+  },
+
+  -- Lazygit integration
+  {
+    "kdheepak/lazygit.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    cmd = { "LazyGit", "LazyGitConfig", "LazyGitCurrentFile" },
+    keys = {
+      { "<leader>gg", "<cmd>LazyGit<cr>", desc = "LazyGit" },
+    },
+  },
+
+  -- Markdown inline rendering
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+    ft = { "markdown" },
+    config = function()
+      require("render-markdown").setup({})
     end,
   },
 
