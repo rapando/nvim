@@ -271,6 +271,7 @@ require("lazy").setup({
         },
         filters = {
           dotfiles = false,
+          git_ignored = false,
         },
       })
       vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
