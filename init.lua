@@ -17,7 +17,7 @@ vim.opt.signcolumn = "yes"
 vim.opt.updatetime = 250
 vim.opt.timeoutlen = 300
 vim.opt.termguicolors = true
-vim.opt.guicursor = "n:underline,i:underLine-blinkwait700-blinkon400-blinkoff250"
+vim.opt.guicursor = "n-v-c-r:under-blinkwait700-blinkon400-blinkoff250,i:under-blinkwait700-blinkon400-blinkoff250"
 vim.opt.scrolloff = 8
 vim.opt.colorcolumn = "100"
 
