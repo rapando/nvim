@@ -62,11 +62,17 @@ require("lazy").setup({
   },
 
   -- Additional themes (lazy loaded)
-  { "folke/tokyonight.nvim",   lazy = true },
-  { "doums/darcula",           lazy = true },
-  { "rose-pine/neovim",        name = "rose-pine", lazy = true },
-  { "rebelot/kanagawa.nvim",   lazy = true },
-  { "sainnhe/gruvbox-material", lazy = true },
+  { "folke/tokyonight.nvim",          lazy = true },
+  { "doums/darcula",                  lazy = true },
+  { "rose-pine/neovim",               name = "rose-pine",  lazy = true },
+  { "rebelot/kanagawa.nvim",          lazy = true },
+  { "sainnhe/gruvbox-material",       lazy = true },
+  { "EdenEast/nightfox.nvim",         lazy = true },
+  { "navarasu/onedark.nvim",          lazy = true },
+  { "Mofiqul/dracula.nvim",           lazy = true },
+  { "sainnhe/everforest",             lazy = true },
+  { "shaunsingh/nord.nvim",           lazy = true },
+  { "nyoom-engineering/oxocarbon.nvim", lazy = true },
 
   -- Fuzzy finder
   {
@@ -438,6 +444,18 @@ local themes = {
   { label = "Kanagawa Dragon",      cs = "kanagawa-dragon",      lualine = "kanagawa" },
   { label = "Kanagawa Lotus",       cs = "kanagawa-lotus",       lualine = "kanagawa" },
   { label = "Gruvbox Material",     cs = "gruvbox-material",     lualine = "gruvbox_material" },
+  { label = "Nightfox",             cs = "nightfox",             lualine = "nightfox" },
+  { label = "Dayfox",               cs = "dayfox",               lualine = "dayfox" },
+  { label = "Dawnfox",              cs = "dawnfox",              lualine = "dawnfox" },
+  { label = "Duskfox",              cs = "duskfox",              lualine = "duskfox" },
+  { label = "Nordfox",              cs = "nordfox",              lualine = "nordfox" },
+  { label = "Carbonfox",            cs = "carbonfox",            lualine = "carbonfox" },
+  { label = "Terafox",              cs = "terafox",              lualine = "terafox" },
+  { label = "OneDark",              cs = "onedark",              lualine = "onedark" },
+  { label = "Dracula",              cs = "dracula",              lualine = "dracula-nvim" },
+  { label = "Everforest",           cs = "everforest",           lualine = "everforest" },
+  { label = "Nord",                 cs = "nord",                 lualine = "nord" },
+  { label = "Oxocarbon",            cs = "oxocarbon",            lualine = "auto" },
 }
 
 vim.keymap.set("n", "<leader>th", function()
