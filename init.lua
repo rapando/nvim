@@ -61,6 +61,13 @@ require("lazy").setup({
     end,
   },
 
+  -- Additional themes (lazy loaded)
+  { "folke/tokyonight.nvim",   lazy = true },
+  { "doums/darcula",           lazy = true },
+  { "rose-pine/neovim",        name = "rose-pine", lazy = true },
+  { "rebelot/kanagawa.nvim",   lazy = true },
+  { "sainnhe/gruvbox-material", lazy = true },
+
   -- Fuzzy finder
   {
     "nvim-telescope/telescope.nvim",
@@ -393,3 +400,40 @@ vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move to right split" })
 vim.keymap.set("n", "<leader>sh", ":split<CR>", { desc = "Split horizontally" })
 vim.keymap.set("n", "<leader>sv", ":vsplit<CR>", { desc = "Split vertically" })
 vim.keymap.set("n", "<leader>sc", "<C-w>c", { desc = "Close split" })
+
+-- Theme picker
+local themes = {
+  { label = "Catppuccin Latte",     cs = "catppuccin-latte",     lualine = "catppuccin" },
+  { label = "Catppuccin Frappe",    cs = "catppuccin-frappe",    lualine = "catppuccin" },
+  { label = "Catppuccin Macchiato", cs = "catppuccin-macchiato", lualine = "catppuccin" },
+  { label = "Catppuccin Mocha",     cs = "catppuccin-mocha",     lualine = "catppuccin" },
+  { label = "Tokyo Night",          cs = "tokyonight",           lualine = "tokyonight" },
+  { label = "Tokyo Night Storm",    cs = "tokyonight-storm",     lualine = "tokyonight" },
+  { label = "Tokyo Night Moon",     cs = "tokyonight-moon",      lualine = "tokyonight" },
+  { label = "Tokyo Night Day",      cs = "tokyonight-day",       lualine = "tokyonight" },
+  { label = "Darcula",              cs = "darcula",              lualine = "auto" },
+  { label = "Rose Pine",            cs = "rose-pine",            lualine = "rose-pine" },
+  { label = "Rose Pine Moon",       cs = "rose-pine-moon",       lualine = "rose-pine" },
+  { label = "Rose Pine Dawn",       cs = "rose-pine-dawn",       lualine = "rose-pine" },
+  { label = "Kanagawa Wave",        cs = "kanagawa-wave",        lualine = "kanagawa" },
+  { label = "Kanagawa Dragon",      cs = "kanagawa-dragon",      lualine = "kanagawa" },
+  { label = "Kanagawa Lotus",       cs = "kanagawa-lotus",       lualine = "kanagawa" },
+  { label = "Gruvbox Material",     cs = "gruvbox-material",     lualine = "gruvbox_material" },
+}
+
+vim.keymap.set("n", "<leader>th", function()
+  local labels = {}
+  for _, t in ipairs(themes) do
+    table.insert(labels, t.label)
+  end
+  vim.ui.select(labels, { prompt = "Select theme:" }, function(choice)
+    if not choice then return end
+    for _, t in ipairs(themes) do
+      if t.label == choice then
+        vim.cmd("colorscheme " .. t.cs)
+        require("lualine").setup({ options = { theme = t.lualine } })
+        break
+      end
+    end
+  end)
+end, { desc = "Theme picker" })
