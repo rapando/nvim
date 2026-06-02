@@ -343,7 +343,7 @@ require("lazy").setup({
   -- Status line
   {
     "nvim-lualine/lualine.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    dependencies = { "nvim-tree/nvim-web-devicons", "catppuccin/nvim" },
     config = function()
       require("lualine").setup({
         options = {
@@ -788,12 +788,16 @@ require("lazy").setup({
     },
     opts = {
       provider = "claude",
-      claude = {
-        endpoint = "https://api.anthropic.com",
-        model = "claude-sonnet-4-6",
-        timeout = 30000,
-        temperature = 0,
-        max_tokens = 8192,
+      providers = {
+        claude = {
+          endpoint = "https://api.anthropic.com",
+          model = "claude-sonnet-4-6",
+          timeout = 30000,
+          extra_request_body = {
+            temperature = 0,
+            max_tokens = 8192,
+          },
+        },
       },
     },
   },
