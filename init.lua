@@ -55,22 +55,22 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Plugins
 require("lazy").setup({
-  -- Theme
+  -- Default theme
   {
-    "catppuccin/nvim",
-    name = "catppuccin",
+    "rose-pine/neovim",
+    name = "rose-pine",
     lazy = false,
     priority = 1000,
     config = function()
-      require("catppuccin").setup({ flavour = "mocha" })
-      vim.cmd([[colorscheme catppuccin]])
+      require("rose-pine").setup({ variant = "moon" })
+      vim.cmd([[colorscheme rose-pine]])
     end,
   },
 
   -- Additional themes (lazy loaded)
+  { "catppuccin/nvim",                name = "catppuccin", lazy = true },
   { "folke/tokyonight.nvim",          lazy = true },
   { "doums/darcula",                  lazy = true },
-  { "rose-pine/neovim",               name = "rose-pine",  lazy = true },
   { "rebelot/kanagawa.nvim",          lazy = true },
   { "sainnhe/gruvbox-material",       lazy = true },
   { "EdenEast/nightfox.nvim",         lazy = true },
@@ -343,11 +343,11 @@ require("lazy").setup({
   -- Status line
   {
     "nvim-lualine/lualine.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons", "catppuccin/nvim" },
+    dependencies = { "nvim-tree/nvim-web-devicons", "rose-pine/neovim" },
     config = function()
       require("lualine").setup({
         options = {
-          theme = "catppuccin",
+          theme = "rose-pine",
         },
       })
     end,
@@ -892,10 +892,6 @@ vim.keymap.set("n", "<leader>sc", "<C-w>c", { desc = "Close split" })
 
 -- Theme picker
 local themes = {
-  { label = "Catppuccin Latte",     cs = "catppuccin-latte",     lualine = "catppuccin" },
-  { label = "Catppuccin Frappe",    cs = "catppuccin-frappe",    lualine = "catppuccin" },
-  { label = "Catppuccin Macchiato", cs = "catppuccin-macchiato", lualine = "catppuccin" },
-  { label = "Catppuccin Mocha",     cs = "catppuccin-mocha",     lualine = "catppuccin" },
   { label = "Tokyo Night",          cs = "tokyonight",           lualine = "tokyonight" },
   { label = "Tokyo Night Storm",    cs = "tokyonight-storm",     lualine = "tokyonight" },
   { label = "Tokyo Night Moon",     cs = "tokyonight-moon",      lualine = "tokyonight" },

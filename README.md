@@ -55,7 +55,7 @@ A modern Neovim setup for Go, C, and Python development with LSP, autocomplete, 
 - **Which-key**: pause after `<leader>` to see all available bindings in a popup
 - **Smooth scrolling**: animated scroll (neoscroll)
 - **Dashboard**: alpha-nvim startup screen with quick-access buttons
-- **Themes**: 28 themes with live preview picker (`<leader>th`)
+- **Themes**: 24 themes with live preview picker (`<leader>th`)
 - **Todo comments**: highlights `TODO`/`FIXME`/`NOTE`/`HACK` in code with colors
 - **Illuminate**: auto-highlights all other occurrences of the word under the cursor
 
