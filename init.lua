@@ -341,6 +341,25 @@ require("lazy").setup({
     end,
   },
 
+  -- Floating UI for vim.ui.select and vim.ui.input
+  {
+    "stevearc/dressing.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("dressing").setup({
+        select = {
+          backend = { "telescope", "builtin" },
+          telescope = require("telescope.themes").get_dropdown({ previewer = false }),
+        },
+        input = {
+          relative = "editor",
+          prefer_width = 0.4,
+          win_options = { winblend = 0 },
+        },
+      })
+    end,
+  },
+
   -- Virtual environment support for Python
   {
     "linux-cultist/venv-selector.nvim",
@@ -422,18 +441,75 @@ local themes = {
 }
 
 vim.keymap.set("n", "<leader>th", function()
-  local labels = {}
-  for _, t in ipairs(themes) do
-    table.insert(labels, t.label)
+  local original_cs = vim.g.colors_name
+  local original_lualine = require("lualine").get_config().options.theme
+  local confirmed = false
+
+  local function apply_theme(t)
+    pcall(vim.cmd, "colorscheme " .. t.cs)
+    pcall(require("lualine").setup, { options = { theme = t.lualine } })
   end
-  vim.ui.select(labels, { prompt = "Select theme:" }, function(choice)
-    if not choice then return end
-    for _, t in ipairs(themes) do
-      if t.label == choice then
-        vim.cmd("colorscheme " .. t.cs)
-        require("lualine").setup({ options = { theme = t.lualine } })
-        break
+
+  local pickers = require("telescope.pickers")
+  local finders = require("telescope.finders")
+  local conf = require("telescope.config").values
+  local actions = require("telescope.actions")
+  local action_state = require("telescope.actions.state")
+
+  pickers.new({}, {
+    prompt_title = "Select Theme",
+    finder = finders.new_table({
+      results = themes,
+      entry_maker = function(t)
+        return { value = t, display = t.label, ordinal = t.label }
+      end,
+    }),
+    sorter = conf.generic_sorter({}),
+    attach_mappings = function(prompt_bufnr, map)
+      local function preview()
+        local sel = action_state.get_selected_entry()
+        if sel then apply_theme(sel.value) end
       end
-    end
-  end)
+
+      local function move_next()
+        actions.move_selection_next(prompt_bufnr)
+        preview()
+      end
+      local function move_prev()
+        actions.move_selection_previous(prompt_bufnr)
+        preview()
+      end
+
+      map("i", "<Down>", move_next)
+      map("i", "<Up>", move_prev)
+      map("i", "<C-n>", move_next)
+      map("i", "<C-p>", move_prev)
+      map("n", "j", move_next)
+      map("n", "k", move_prev)
+
+      actions.select_default:replace(function()
+        local sel = action_state.get_selected_entry()
+        if sel then
+          confirmed = true
+          apply_theme(sel.value)
+        end
+        actions.close(prompt_bufnr)
+      end)
+
+      local function cancel()
+        actions.close(prompt_bufnr)
+        if not confirmed then
+          pcall(vim.cmd, "colorscheme " .. original_cs)
+          pcall(require("lualine").setup, { options = { theme = original_lualine } })
+        end
+      end
+
+      map("i", "<Esc>", cancel)
+      map("n", "<Esc>", cancel)
+      map("i", "<C-c>", cancel)
+      map("n", "q", cancel)
+
+      return true
+    end,
+  }):find()
 end, { desc = "Theme picker" })
