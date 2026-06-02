@@ -105,6 +105,8 @@ Then reload: `source ~/.zshrc`. Use `<leader>aa` to open the AI sidebar.
 
 To get an API key: [console.anthropic.com](https://console.anthropic.com)
 
+The default model is `claude-sonnet-4-6`. To change it, edit the `model` field in the avante provider config in `init.lua`.
+
 ## Post-install: go.nvim Tools
 
 On first use of a Go file, go.nvim may prompt to install its companion tools. You can also trigger this manually:

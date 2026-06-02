@@ -28,7 +28,6 @@
 | `<leader>fb` | Find open buffers |
 | `<leader>fh` | Search help tags |
 | `<leader>/` | Fuzzy search in current file |
-| `<leader>ft` | Find all TODO/FIXME/NOTE comments |
 
 ## Navigation
 
@@ -51,7 +50,7 @@
 |-----|--------|
 | `gd` | Go to definition |
 | `gr` | Go to references |
-| `K` | Hover docs (or peek folded lines) |
+| `K` | Hover docs; peeks folded lines if cursor is on a fold |
 | `<leader>rn` | Rename symbol |
 | `<leader>ca` | Code action |
 | `<leader>e` | Show diagnostics float |
@@ -75,6 +74,7 @@
 | `cs{old}{new}` | Change surrounding character |
 | `ds{char}` | Delete surrounding character |
 | `<leader>cf` | Format file or selection |
+| `<leader>u` | Toggle undo history tree |
 
 ## Folding
 
@@ -82,7 +82,6 @@
 |-----|--------|
 | `zR` | Open all folds |
 | `zM` | Close all folds |
-| `K` | Peek fold content (falls through to hover if nothing folded) |
 
 ## Search & Replace
 
@@ -90,7 +89,6 @@
 |-----|--------|
 | `<leader>sr` | Open Spectre (project-wide find & replace) |
 | `<leader>sw` | Replace word under cursor (Spectre) |
-| `<leader>u` | Toggle undo history tree |
 
 ## Debugging
 
