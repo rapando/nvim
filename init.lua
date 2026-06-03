@@ -17,7 +17,10 @@ vim.opt.signcolumn = "yes"
 vim.opt.updatetime = 250
 vim.opt.timeoutlen = 300
 vim.opt.termguicolors = true
-vim.opt.guicursor = "n-v-c-r:under-blinkwait700-blinkon400-blinkoff250,i:under-blinkwait700-blinkon400-blinkoff250"
+vim.opt.guicursor = "n-v-c-sm-o-r-cr-ve:hor20,i-ci:hor20-blinkwait300-blinkon200-blinkoff150"
+vim.api.nvim_create_autocmd("VimLeave", {
+  callback = function() io.write("\27[0 q") end,
+})
 vim.opt.scrolloff = 8
 vim.opt.colorcolumn = "100"
 
@@ -811,12 +814,20 @@ require("lazy").setup({
         row = 1,
         col = 0,
         speed_multiplier = 1,
-        default_pet = "cat",
-        default_style = "yellow",
+        default_pet = "dog",
+        default_style = "brown",
         random = true,
         death_animation = true,
       })
-      vim.keymap.set("n", "<leader>pa", "<cmd>PetsNew<CR>", { desc = "New pet" })
+      vim.keymap.set("n", "<leader>pa", function()
+        local pet_type = vim.fn.input("Pet type (dog/slime/cockatiel/zappy/rocky/clippy/crab/rubber-duck/snake): ")
+        if pet_type == "" then return end
+        local pet_style = vim.fn.input("Pet style (e.g. dog: beige/black/brown/gray): ")
+        if pet_style == "" then return end
+        local pet_name = vim.fn.input("Pet name: ")
+        if pet_name == "" then return end
+        vim.cmd("PetsNewCustom " .. pet_type .. " " .. pet_style .. " " .. pet_name)
+      end, { desc = "New pet" })
       vim.keymap.set("n", "<leader>pk", "<cmd>PetsKillAll<CR>", { desc = "Kill all pets" })
       vim.keymap.set("n", "<leader>ps", "<cmd>PetsList<CR>", { desc = "List pets" })
     end,
