@@ -60,7 +60,11 @@ A modern Neovim setup for Go, C, and Python development with LSP, autocomplete, 
 - **Illuminate**: auto-highlights all other occurrences of the word under the cursor
 
 ### AI
+- **OpenCode**: AI coding agent with free/any model support — ask questions, edit code, review, fix, test
+  - Install the CLI: `brew install opencode` or `curl -fsSL https://opencode.ai/install | bash`
+  - Keymaps: `<leader>oa` (ask), `<leader>os` (select action), `go`/`goo` (append context)
 - **Avante.nvim**: Claude Sonnet sidebar — ask questions, edit code, chat (`<leader>aa`)
+  - Requires `ANTHROPIC_API_KEY` env var set in your shell profile
 
 ### Diagnostics & Terminal
 - **Trouble**: structured panel for diagnostics, quickfix, and loclist
@@ -81,6 +85,8 @@ A modern Neovim setup for Go, C, and Python development with LSP, autocomplete, 
 | Colors wrong | Use a true-color terminal (iTerm2, Kitty, Alacritty); set `TERM=xterm-256color` |
 | DAP not stopping | Ensure `dlv`/`debugpy` is installed and on `$PATH` |
 | Avante not responding | Check `ANTHROPIC_API_KEY` is set in your shell |
+| OpenCode not found | Install the CLI: `brew install opencode` or `curl -fsSL https://opencode.ai/install \| bash` |
+| OpenCode plugin not working | Run `:checkhealth opencode` inside Neovim; ensure `opencode` is on `$PATH` |
 | Pets not showing images | Requires Kitty or iTerm2 with image protocol support |
 
 Run `:checkhealth` inside Neovim for a full diagnostic.
