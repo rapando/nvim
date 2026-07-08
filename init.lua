@@ -864,7 +864,9 @@ require("lazy").setup({
 
 -- Auto-cd to project root when opening files
 local function find_git_root()
-  local git_dir = vim.fn.finddir(".git", vim.fn.expand("%:p:h") .. ";")
+  local path = vim.fn.expand("%:p:h")
+  if path == "" then return vim.fn.getcwd() end
+  local git_dir = vim.fn.finddir(".git", path .. ";")
   if git_dir ~= "" then
     return vim.fn.fnamemodify(git_dir, ":p:h:h")
   end
@@ -875,7 +877,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
   callback = function()
     local git_root = find_git_root()
     if git_root ~= vim.fn.getcwd() then
-      vim.fn.chdir(git_root)
+      pcall(vim.fn.chdir, git_root)
     end
   end,
 })
