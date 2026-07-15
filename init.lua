@@ -329,7 +329,7 @@ require("lazy").setup({
       local ok, ts = pcall(require, "nvim-treesitter.configs")
       if ok then
         ts.setup({
-          ensure_installed = { "go", "c", "python", "lua", "vim", "markdown", "json" },
+          ensure_installed = { "go", "c", "python", "lua", "vim", "markdown", "json", "sql" },
           auto_install = true,
           highlight = {
             enable = true,
@@ -805,6 +805,34 @@ require("lazy").setup({
     },
   },
 
+  -- OpenCode AI agent — install CLI: brew install opencode
+  {
+    "nickjvandyke/opencode.nvim",
+    version = "*",
+    config = function()
+      vim.g.opencode_opts = {}
+      vim.o.autoread = true
+      vim.keymap.set({ "n", "x" }, "<leader>oa", function()
+        require("opencode").ask("@this: ")
+      end, { desc = "Ask OpenCode" })
+      vim.keymap.set({ "n", "x" }, "<leader>os", function()
+        require("opencode").select()
+      end, { desc = "Select OpenCode action" })
+      vim.keymap.set({ "n", "x" }, "go", function()
+        return require("opencode").operator("@this ")
+      end, { desc = "Append range to OpenCode", expr = true })
+      vim.keymap.set("n", "goo", function()
+        return require("opencode").operator("@this ") .. "_"
+      end, { desc = "Append line to OpenCode", expr = true })
+      vim.keymap.set("n", "<S-C-u>", function()
+        require("opencode").command("session.half.page.up")
+      end, { desc = "Scroll OpenCode up" })
+      vim.keymap.set("n", "<S-C-d>", function()
+        require("opencode").command("session.half.page.down")
+      end, { desc = "Scroll OpenCode down" })
+    end,
+  },
+
   -- Animated pets at the bottom
   {
     "giusgad/pets.nvim",
@@ -836,7 +864,9 @@ require("lazy").setup({
 
 -- Auto-cd to project root when opening files
 local function find_git_root()
-  local git_dir = vim.fn.finddir(".git", vim.fn.expand("%:p:h") .. ";")
+  local path = vim.fn.expand("%:p:h")
+  if path == "" then return vim.fn.getcwd() end
+  local git_dir = vim.fn.finddir(".git", path .. ";")
   if git_dir ~= "" then
     return vim.fn.fnamemodify(git_dir, ":p:h:h")
   end
@@ -847,7 +877,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
   callback = function()
     local git_root = find_git_root()
     if git_root ~= vim.fn.getcwd() then
-      vim.fn.chdir(git_root)
+      pcall(vim.fn.chdir, git_root)
     end
   end,
 })
