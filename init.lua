@@ -329,7 +329,7 @@ require("lazy").setup({
       local ok, ts = pcall(require, "nvim-treesitter.configs")
       if ok then
         ts.setup({
-          ensure_installed = { "go", "c", "python", "lua", "vim", "markdown", "json" },
+          ensure_installed = { "go", "c", "python", "lua", "vim", "markdown", "json", "sql" },
           auto_install = true,
           highlight = {
             enable = true,
