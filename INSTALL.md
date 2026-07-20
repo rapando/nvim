@@ -38,6 +38,13 @@ sudo dnf install clang-tools-extra # Fedora
 
 # Python
 pip install pyright
+
+# Terraform
+brew install terraform-ls
+
+# Ansible
+npm install -g @ansible/ansible-language-server
+pip install ansible-lint
 ```
 
 ### Formatters
@@ -46,7 +53,7 @@ pip install pyright
 go install golang.org/x/tools/cmd/goimports@latest
 go install github.com/dinkur/golines@latest
 pip install black isort
-brew install clang-format stylua prettier   # macOS
+brew install clang-format stylua prettier terraform  # macOS
 ```
 
 ### Debuggers
@@ -151,7 +158,7 @@ rm -rf ~/.local/share/nvim                # remove plugins and cache
 | Problem | Fix |
 |---------|-----|
 | Plugins not installing | `rm -rf ~/.local/share/nvim/lazy`, reopen Neovim |
-| LSP not attaching | `:LspInfo`; verify `which gopls` / `which clangd` / `which pyright` |
+| LSP not attaching | `:LspInfo`; verify `which gopls` / `which clangd` / `which pyright` / `which terraform-ls` / `which ansible-language-server` |
 | Telescope finds nothing | Install `fd`; must be inside a directory |
 | Formatter not running | `which <formatter>`, install it, restart Neovim |
 | Colors wrong | Use a true-color terminal; set `TERM=xterm-256color` in shell config |

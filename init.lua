@@ -173,6 +173,18 @@ require("lazy").setup({
       })
       vim.lsp.enable("pyright")
 
+      -- Terraform
+      vim.lsp.config("terraformls", {
+        capabilities = capabilities,
+      })
+      vim.lsp.enable("terraformls")
+
+      -- Ansible
+      vim.lsp.config("ansiblels", {
+        capabilities = capabilities,
+      })
+      vim.lsp.enable("ansiblels")
+
       -- Keybindings
       vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
       vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "Go to references" })
@@ -270,6 +282,8 @@ require("lazy").setup({
           markdown = { "prettier" },
           json = { "prettier" },
           yaml = { "prettier" },
+          terraform = { "terraform_fmt" },
+          ["terraform-vars"] = { "terraform_fmt" },
         },
         format_on_save = {
           timeout_ms = 500,
@@ -329,7 +343,7 @@ require("lazy").setup({
       local ok, ts = pcall(require, "nvim-treesitter.configs")
       if ok then
         ts.setup({
-          ensure_installed = { "go", "c", "python", "lua", "vim", "markdown", "json", "sql" },
+          ensure_installed = { "go", "c", "python", "lua", "vim", "markdown", "json", "sql", "hcl", "yaml" },
           auto_install = true,
           highlight = {
             enable = true,
