@@ -22,6 +22,12 @@ vim.opt.guicursor = "n-v-c-sm-o-r-cr-ve:hor20,i-ci:hor20-blinkwait300-blinkon200
 vim.api.nvim_create_autocmd("VimLeave", {
   callback = function() io.write("\27[0 q") end,
 })
+-- Fix: ensure buffers closed with :q disappear from bufferline
+vim.api.nvim_create_autocmd("BufDelete", {
+  callback = function()
+    vim.cmd("redrawtabline")
+  end,
+})
 vim.opt.scrolloff = 8
 vim.opt.colorcolumn = "100"
 
@@ -730,6 +736,7 @@ require("lazy").setup({
       require("bufferline").setup({
         options = {
           diagnostics = "nvim_lsp",
+          close_command = "bdelete! %d",
           offsets = {
             { filetype = "NvimTree", text = "Files", separator = true },
           },
@@ -895,6 +902,25 @@ vim.api.nvim_create_autocmd("BufEnter", {
       pcall(vim.fn.chdir, git_root)
     end
   end,
+})
+
+-- Python pipenv support
+local function load_pipenv()
+  local pipenv_dir = vim.fn.getcwd()
+  local pipenv_file = pipenv_dir .. "/Pipfile"
+  if vim.fn.filereadable(pipenv_file) == 1 then
+    local venv_path = vim.fn.system("pipenv --venv 2>/dev/null")
+    if vim.v.shell_error == 0 then
+      venv_path = vim.fn.trim(venv_path)
+      vim.env.VIRTUAL_ENV = venv_path
+      vim.env.PATH = venv_path .. "/bin:" .. vim.env.PATH
+    end
+  end
+end
+
+vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = "*.py",
+  callback = load_pipenv,
 })
 
 -- Python pipenv support
