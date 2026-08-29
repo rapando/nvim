@@ -56,6 +56,7 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 - **Gitsigns**: gutter indicators, inline blame, hunk staging.
 
 ### UI & Diagnostics
+- **noice.nvim**: floating popup for the `:` command line (messages/notifications left untouched — no cmdline history/LSP-message overrides).
 - **which-key**: shows available bindings after `<leader>`.
 - **todo-comments**: highlights `TODO`/`FIXME`/`NOTE`/`HACK`.
 - **vim-illuminate**: highlights other occurrences of the word under the cursor.
@@ -77,6 +78,7 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 | `MeanderingProgrammer/render-markdown.nvim` | Markdown inline rendering |
 | `nvim-treesitter/nvim-treesitter` | Syntax highlighting/indent/folds |
 | `nvim-lualine/lualine.nvim` | Status line |
+| `folke/noice.nvim` + `MunifTanjim/nui.nvim` | Floating `:` cmdline (messages/notify overrides disabled) |
 | `mfussenegger/nvim-dap` + `nvim-dap-ui`, `leoluz/nvim-dap-go` | Debugger (Go) |
 | `lewis6991/gitsigns.nvim` | Git signs & blame |
 | `folke/which-key.nvim` | Keybinding popup |

@@ -331,6 +331,40 @@ require("lazy").setup({
     end,
   },
 
+  -- Floating cmdline for ":" (messages/notifications left on the defaults)
+  {
+    "folke/noice.nvim",
+    event = "VeryLazy",
+    dependencies = { "MunifTanjim/nui.nvim" },
+    config = function()
+      require("noice").setup({
+        cmdline = {
+          enabled = true,
+          view = "cmdline_popup",
+        },
+        views = {
+          cmdline_popup = {
+            position = {
+              row = 3,
+              col = "50%",
+            },
+            size = {
+              width = 60,
+              height = "auto",
+            },
+          },
+        },
+        messages = { enabled = false },
+        popupmenu = { enabled = false },
+        notify = { enabled = false },
+        lsp = {
+          hover = { enabled = false },
+          signature = { enabled = false },
+        },
+      })
+    end,
+  },
+
   -- Debugger (Go)
   {
     "mfussenegger/nvim-dap",
