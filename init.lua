@@ -7,7 +7,7 @@ vim.g.mapleader = " "
 -- Basic settings
 vim.opt.number = true
 vim.opt.relativenumber = true
-vim.opt.hidden = false
+vim.opt.hidden = true
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
@@ -76,19 +76,6 @@ require("lazy").setup({
       vim.cmd([[colorscheme rose-pine]])
     end,
   },
-
-  -- Additional themes (lazy loaded)
-  { "catppuccin/nvim",                name = "catppuccin", lazy = true },
-  { "folke/tokyonight.nvim",          lazy = true },
-  { "doums/darcula",                  lazy = true },
-  { "rebelot/kanagawa.nvim",          lazy = true },
-  { "sainnhe/gruvbox-material",       lazy = true },
-  { "EdenEast/nightfox.nvim",         lazy = true },
-  { "navarasu/onedark.nvim",          lazy = true },
-  { "Mofiqul/dracula.nvim",           lazy = true },
-  { "sainnhe/everforest",             lazy = true },
-  { "shaunsingh/nord.nvim",           lazy = true },
-  { "nyoom-engineering/oxocarbon.nvim", lazy = true },
 
   -- Fuzzy finder
   {
@@ -163,42 +150,13 @@ require("lazy").setup({
       })
       vim.lsp.enable("gopls")
 
-      -- C
-      vim.lsp.config("clangd", {
-        capabilities = capabilities,
-      })
-      vim.lsp.enable("clangd")
-
-      -- Python
-      vim.lsp.config("pyright", {
-        capabilities = capabilities,
-        settings = {
-          python = {
-            venvPath = vim.fn.getcwd(),
-          },
-        },
-      })
-      vim.lsp.enable("pyright")
-
-      -- Terraform
-      vim.lsp.config("terraformls", {
-        capabilities = capabilities,
-      })
-      vim.lsp.enable("terraformls")
-
-      -- Ansible
-      vim.lsp.config("ansiblels", {
-        capabilities = capabilities,
-      })
-      vim.lsp.enable("ansiblels")
-
       -- Keybindings
       vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
       vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "Go to references" })
       vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "Hover" })
       vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename" })
       vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code action" })
-      vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostics" })
+      vim.keymap.set("n", "<leader>ld", vim.diagnostic.open_float, { desc = "Show diagnostics" })
     end,
   },
 
@@ -283,14 +241,10 @@ require("lazy").setup({
       conform.setup({
         formatters_by_ft = {
           go = { "goimports", "golines" },
-          python = { "black", "isort" },
-          c = { "clang-format" },
           lua = { "stylua" },
           markdown = { "prettier" },
           json = { "prettier" },
           yaml = { "prettier" },
-          terraform = { "terraform_fmt" },
-          ["terraform-vars"] = { "terraform_fmt" },
         },
         format_on_save = {
           timeout_ms = 500,
@@ -350,7 +304,7 @@ require("lazy").setup({
       local ok, ts = pcall(require, "nvim-treesitter.configs")
       if ok then
         ts.setup({
-          ensure_installed = { "go", "c", "python", "lua", "vim", "markdown", "json", "sql", "hcl", "yaml" },
+          ensure_installed = { "go", "lua", "vim", "markdown", "json", "sql", "yaml" },
           auto_install = true,
           highlight = {
             enable = true,
@@ -377,45 +331,13 @@ require("lazy").setup({
     end,
   },
 
-  -- Floating UI for vim.ui.select and vim.ui.input
-  {
-    "stevearc/dressing.nvim",
-    event = "VeryLazy",
-    config = function()
-      require("dressing").setup({
-        select = {
-          backend = { "telescope", "builtin" },
-          telescope = require("telescope.themes").get_dropdown({ previewer = false }),
-        },
-        input = {
-          relative = "editor",
-          prefer_width = 0.4,
-          win_options = { winblend = 0 },
-        },
-      })
-    end,
-  },
-
-  -- Virtual environment support for Python
-  {
-    "linux-cultist/venv-selector.nvim",
-    dependencies = { "neovim/nvim-lspconfig", "mfussenegger/nvim-dap-python" },
-    config = function()
-      require("venv-selector").setup({
-        auto_initialize = true,
-      })
-      vim.keymap.set("n", "<leader>vs", ":VenvSelect<CR>", { desc = "Select virtual environment" })
-    end,
-  },
-
-  -- Debugger (Go, Python, C)
+  -- Debugger (Go)
   {
     "mfussenegger/nvim-dap",
     dependencies = {
       "rcarriga/nvim-dap-ui",
       "nvim-neotest/nvim-nio",
       "leoluz/nvim-dap-go",
-      "mfussenegger/nvim-dap-python",
     },
     config = function()
       local dap = require("dap")
@@ -423,7 +345,6 @@ require("lazy").setup({
 
       dapui.setup()
       require("dap-go").setup()
-      require("dap-python").setup("python3")
 
       dap.listeners.after.event_initialized["dapui_config"] = function() dapui.open() end
       dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close() end
@@ -517,49 +438,20 @@ require("lazy").setup({
     end,
   },
 
-  -- Go extra tooling
-  {
-    "ray-x/go.nvim",
-    dependencies = { "ray-x/guihua.lua", "neovim/nvim-lspconfig", "nvim-treesitter/nvim-treesitter" },
-    ft = { "go", "gomod" },
-    build = ':lua require("go.install").update_all_sync()',
-    config = function()
-      require("go").setup()
-      vim.keymap.set("n", "<leader>gt", "<cmd>GoTest<CR>", { desc = "Go test" })
-      vim.keymap.set("n", "<leader>gf", "<cmd>GoFillStruct<CR>", { desc = "Go fill struct" })
-      vim.keymap.set("n", "<leader>gi", "<cmd>GoImpl<CR>", { desc = "Go implement interface" })
-      vim.keymap.set("n", "<leader>gat", "<cmd>GoAddTag<CR>", { desc = "Go add struct tags" })
-    end,
-  },
-
-  -- clangd extensions (C inlay hints)
-  {
-    "p00f/clangd_extensions.nvim",
-    ft = { "c", "cpp" },
-    config = function()
-      require("clangd_extensions").setup({
-        inlay_hints = { inline = true },
-      })
-    end,
-  },
-
   -- Neotest (inline test runner)
   {
     "nvim-neotest/neotest",
     dependencies = {
       "nvim-neotest/nvim-nio",
       "nvim-lua/plenary.nvim",
-      "antoinemadec/FixCursorHold.nvim",
       "nvim-treesitter/nvim-treesitter",
       "nvim-neotest/neotest-go",
-      "nvim-neotest/neotest-python",
     },
     config = function()
       local neotest = require("neotest")
       neotest.setup({
         adapters = {
           require("neotest-go"),
-          require("neotest-python"),
         },
       })
       vim.keymap.set("n", "<leader>tt", function() neotest.run.run() end, { desc = "Run nearest test" })
@@ -593,78 +485,6 @@ require("lazy").setup({
         float_opts = { border = "curved" },
       })
     end,
-  },
-
-  -- Indent guides
-  {
-    "lukas-reineke/indent-blankline.nvim",
-    main = "ibl",
-    event = { "BufReadPre", "BufNewFile" },
-    config = function()
-      require("ibl").setup({
-        indent = { char = "│" },
-        scope = { enabled = true },
-      })
-    end,
-  },
-
-  -- Noice (prettier cmdline & notifications)
-  {
-    "folke/noice.nvim",
-    event = "VeryLazy",
-    dependencies = { "MunifTanjim/nui.nvim", "rcarriga/nvim-notify" },
-    config = function()
-      require("noice").setup({
-        lsp = {
-          override = {
-            ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
-            ["vim.lsp.util.stylize_markdown"] = true,
-            ["cmp.entry.get_documentation"] = true,
-          },
-        },
-        presets = {
-          bottom_search = true,
-          command_palette = true,
-          long_message_to_split = true,
-        },
-      })
-    end,
-  },
-
-  -- Smooth scrolling
-  {
-    "karb94/neoscroll.nvim",
-    config = function()
-      require("neoscroll").setup()
-    end,
-  },
-
-  -- Startup dashboard
-  {
-    "goolord/alpha-nvim",
-    event = "VimEnter",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = function()
-      local dashboard = require("alpha.themes.dashboard")
-      dashboard.section.buttons.val = {
-        dashboard.button("f", "  Find file",    "<cmd>Telescope find_files<CR>"),
-        dashboard.button("r", "  Recent files", "<cmd>Telescope oldfiles<CR>"),
-        dashboard.button("g", "  Live grep",    "<cmd>Telescope live_grep<CR>"),
-        dashboard.button("l", "  Lazy",         "<cmd>Lazy<CR>"),
-        dashboard.button("q", "  Quit",         "<cmd>qa<CR>"),
-      }
-      require("alpha").setup(dashboard.config)
-    end,
-  },
-
-  -- Fun
-  {
-    "eandrju/cellular-automaton.nvim",
-    cmd = "CellularAutomaton",
-    keys = {
-      { "<leader>mr", "<cmd>CellularAutomaton make_it_rain<CR>", desc = "Make it rain" },
-      { "<leader>ml", "<cmd>CellularAutomaton game_of_life<CR>", desc = "Game of life" },
-    },
   },
 
   -- TODO / FIXME / NOTE highlights
@@ -763,125 +583,6 @@ require("lazy").setup({
     end,
   },
 
-  -- Breadcrumbs in winbar
-  {
-    "utilyre/barbecue.nvim",
-    name = "barbecue",
-    version = "*",
-    dependencies = { "SmiteshP/nvim-navic", "nvim-tree/nvim-web-devicons" },
-    config = function()
-      require("barbecue").setup({
-        attach_navic = false, -- attached manually via LspAttach autocmd
-      })
-    end,
-  },
-
-  -- Inline color preview (#hex, rgb(), etc.)
-  {
-    "NvChad/nvim-colorizer.lua",
-    event = { "BufReadPre", "BufNewFile" },
-    config = function()
-      require("colorizer").setup({
-        user_default_options = {
-          RGB = true,
-          RRGGBB = true,
-          names = false,
-          css = true,
-          mode = "background",
-        },
-      })
-    end,
-  },
-
-  -- Claude AI (avante.nvim) — set ANTHROPIC_API_KEY in your shell
-  {
-    "yetone/avante.nvim",
-    event = "VeryLazy",
-    version = false,
-    build = "make",
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter",
-      "stevearc/dressing.nvim",
-      "nvim-lua/plenary.nvim",
-      "MunifTanjim/nui.nvim",
-      "nvim-tree/nvim-web-devicons",
-      {
-        "MeanderingProgrammer/render-markdown.nvim",
-        opts = { file_types = { "markdown", "Avante" } },
-        ft = { "markdown", "Avante" },
-      },
-    },
-    opts = {
-      provider = "claude",
-      providers = {
-        claude = {
-          endpoint = "https://api.anthropic.com",
-          model = "claude-sonnet-4-6",
-          timeout = 30000,
-          extra_request_body = {
-            temperature = 0,
-            max_tokens = 8192,
-          },
-        },
-      },
-    },
-  },
-
-  -- OpenCode AI agent — install CLI: brew install opencode
-  {
-    "nickjvandyke/opencode.nvim",
-    version = "*",
-    config = function()
-      vim.g.opencode_opts = {}
-      vim.o.autoread = true
-      vim.keymap.set({ "n", "x" }, "<leader>oa", function()
-        require("opencode").ask("@this: ")
-      end, { desc = "Ask OpenCode" })
-      vim.keymap.set({ "n", "x" }, "<leader>os", function()
-        require("opencode").select()
-      end, { desc = "Select OpenCode action" })
-      vim.keymap.set({ "n", "x" }, "go", function()
-        return require("opencode").operator("@this ")
-      end, { desc = "Append range to OpenCode", expr = true })
-      vim.keymap.set("n", "goo", function()
-        return require("opencode").operator("@this ") .. "_"
-      end, { desc = "Append line to OpenCode", expr = true })
-      vim.keymap.set("n", "<S-C-u>", function()
-        require("opencode").command("session.half.page.up")
-      end, { desc = "Scroll OpenCode up" })
-      vim.keymap.set("n", "<S-C-d>", function()
-        require("opencode").command("session.half.page.down")
-      end, { desc = "Scroll OpenCode down" })
-    end,
-  },
-
-  -- Animated pets at the bottom
-  {
-    "giusgad/pets.nvim",
-    dependencies = { "MunifTanjim/nui.nvim", "edluffy/hologram.nvim" },
-    config = function()
-      require("pets").setup({
-        row = 1,
-        col = 0,
-        speed_multiplier = 1,
-        default_pet = "dog",
-        default_style = "brown",
-        random = true,
-        death_animation = true,
-      })
-      vim.keymap.set("n", "<leader>pa", function()
-        local pet_type = vim.fn.input("Pet type (dog/slime/cockatiel/zappy/rocky/clippy/crab/rubber-duck/snake): ")
-        if pet_type == "" then return end
-        local pet_style = vim.fn.input("Pet style (e.g. dog: beige/black/brown/gray): ")
-        if pet_style == "" then return end
-        local pet_name = vim.fn.input("Pet name: ")
-        if pet_name == "" then return end
-        vim.cmd("PetsNewCustom " .. pet_type .. " " .. pet_style .. " " .. pet_name)
-      end, { desc = "New pet" })
-      vim.keymap.set("n", "<leader>pk", "<cmd>PetsKillAll<CR>", { desc = "Kill all pets" })
-      vim.keymap.set("n", "<leader>ps", "<cmd>PetsList<CR>", { desc = "List pets" })
-    end,
-  },
 })
 
 -- Auto-cd to project root when opening files
@@ -900,54 +601,6 @@ vim.api.nvim_create_autocmd("BufEnter", {
     local git_root = find_git_root()
     if git_root ~= vim.fn.getcwd() then
       pcall(vim.fn.chdir, git_root)
-    end
-  end,
-})
-
--- Python pipenv support
-local function load_pipenv()
-  local pipenv_dir = vim.fn.getcwd()
-  local pipenv_file = pipenv_dir .. "/Pipfile"
-  if vim.fn.filereadable(pipenv_file) == 1 then
-    local venv_path = vim.fn.system("pipenv --venv 2>/dev/null")
-    if vim.v.shell_error == 0 then
-      venv_path = vim.fn.trim(venv_path)
-      vim.env.VIRTUAL_ENV = venv_path
-      vim.env.PATH = venv_path .. "/bin:" .. vim.env.PATH
-    end
-  end
-end
-
-vim.api.nvim_create_autocmd("BufEnter", {
-  pattern = "*.py",
-  callback = load_pipenv,
-})
-
--- Python pipenv support
-local function load_pipenv()
-  local pipenv_dir = vim.fn.getcwd()
-  local pipenv_file = pipenv_dir .. "/Pipfile"
-  if vim.fn.filereadable(pipenv_file) == 1 then
-    local venv_path = vim.fn.system("pipenv --venv 2>/dev/null")
-    if vim.v.shell_error == 0 then
-      venv_path = vim.fn.trim(venv_path)
-      vim.env.VIRTUAL_ENV = venv_path
-      vim.env.PATH = venv_path .. "/bin:" .. vim.env.PATH
-    end
-  end
-end
-
-vim.api.nvim_create_autocmd("BufEnter", {
-  pattern = "*.py",
-  callback = load_pipenv,
-})
-
--- Attach nvim-navic on LSP connect (powers barbecue breadcrumbs)
-vim.api.nvim_create_autocmd("LspAttach", {
-  callback = function(args)
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-    if client then
-      pcall(require("nvim-navic").attach, client, args.buf)
     end
   end,
 })
@@ -971,105 +624,3 @@ vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move to right split" })
 vim.keymap.set("n", "<leader>sh", ":split<CR>", { desc = "Split horizontally" })
 vim.keymap.set("n", "<leader>sv", ":vsplit<CR>", { desc = "Split vertically" })
 vim.keymap.set("n", "<leader>sc", "<C-w>c", { desc = "Close split" })
-
--- Theme picker
-local themes = {
-  { label = "Tokyo Night",          cs = "tokyonight",           lualine = "tokyonight" },
-  { label = "Tokyo Night Storm",    cs = "tokyonight-storm",     lualine = "tokyonight" },
-  { label = "Tokyo Night Moon",     cs = "tokyonight-moon",      lualine = "tokyonight" },
-  { label = "Tokyo Night Day",      cs = "tokyonight-day",       lualine = "tokyonight" },
-  { label = "Darcula",              cs = "darcula",              lualine = "auto" },
-  { label = "Rose Pine",            cs = "rose-pine",            lualine = "rose-pine" },
-  { label = "Rose Pine Moon",       cs = "rose-pine-moon",       lualine = "rose-pine" },
-  { label = "Rose Pine Dawn",       cs = "rose-pine-dawn",       lualine = "rose-pine" },
-  { label = "Kanagawa Wave",        cs = "kanagawa-wave",        lualine = "kanagawa" },
-  { label = "Kanagawa Dragon",      cs = "kanagawa-dragon",      lualine = "kanagawa" },
-  { label = "Kanagawa Lotus",       cs = "kanagawa-lotus",       lualine = "kanagawa" },
-  { label = "Gruvbox Material",     cs = "gruvbox-material",     lualine = "gruvbox_material" },
-  { label = "Nightfox",             cs = "nightfox",             lualine = "nightfox" },
-  { label = "Dayfox",               cs = "dayfox",               lualine = "dayfox" },
-  { label = "Dawnfox",              cs = "dawnfox",              lualine = "dawnfox" },
-  { label = "Duskfox",              cs = "duskfox",              lualine = "duskfox" },
-  { label = "Nordfox",              cs = "nordfox",              lualine = "nordfox" },
-  { label = "Carbonfox",            cs = "carbonfox",            lualine = "carbonfox" },
-  { label = "Terafox",              cs = "terafox",              lualine = "terafox" },
-  { label = "OneDark",              cs = "onedark",              lualine = "onedark" },
-  { label = "Dracula",              cs = "dracula",              lualine = "dracula-nvim" },
-  { label = "Everforest",           cs = "everforest",           lualine = "everforest" },
-  { label = "Nord",                 cs = "nord",                 lualine = "nord" },
-  { label = "Oxocarbon",            cs = "oxocarbon",            lualine = "auto" },
-}
-
-vim.keymap.set("n", "<leader>th", function()
-  local original_cs = vim.g.colors_name
-  local original_lualine = require("lualine").get_config().options.theme
-  local confirmed = false
-
-  local function apply_theme(t)
-    pcall(vim.cmd, "colorscheme " .. t.cs)
-    pcall(require("lualine").setup, { options = { theme = t.lualine } })
-  end
-
-  local pickers = require("telescope.pickers")
-  local finders = require("telescope.finders")
-  local conf = require("telescope.config").values
-  local actions = require("telescope.actions")
-  local action_state = require("telescope.actions.state")
-
-  pickers.new({}, {
-    prompt_title = "Select Theme",
-    finder = finders.new_table({
-      results = themes,
-      entry_maker = function(t)
-        return { value = t, display = t.label, ordinal = t.label }
-      end,
-    }),
-    sorter = conf.generic_sorter({}),
-    attach_mappings = function(prompt_bufnr, map)
-      local function preview()
-        local sel = action_state.get_selected_entry()
-        if sel then apply_theme(sel.value) end
-      end
-
-      local function move_next()
-        actions.move_selection_next(prompt_bufnr)
-        preview()
-      end
-      local function move_prev()
-        actions.move_selection_previous(prompt_bufnr)
-        preview()
-      end
-
-      map("i", "<Down>", move_next)
-      map("i", "<Up>", move_prev)
-      map("i", "<C-n>", move_next)
-      map("i", "<C-p>", move_prev)
-      map("n", "j", move_next)
-      map("n", "k", move_prev)
-
-      actions.select_default:replace(function()
-        local sel = action_state.get_selected_entry()
-        if sel then
-          confirmed = true
-          apply_theme(sel.value)
-        end
-        actions.close(prompt_bufnr)
-      end)
-
-      local function cancel()
-        actions.close(prompt_bufnr)
-        if not confirmed then
-          pcall(vim.cmd, "colorscheme " .. original_cs)
-          pcall(require("lualine").setup, { options = { theme = original_lualine } })
-        end
-      end
-
-      map("i", "<Esc>", cancel)
-      map("n", "<Esc>", cancel)
-      map("i", "<C-c>", cancel)
-      map("n", "q", cancel)
-
-      return true
-    end,
-  }):find()
-end, { desc = "Theme picker" })
