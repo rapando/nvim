@@ -156,6 +156,7 @@ This config only wires up Go. To bring back a language, add:
 | Telescope finds nothing | Install `fd`; make sure you're inside a git repo/directory |
 | Colors wrong | Use a true-color terminal (iTerm2, Kitty, Alacritty); set `TERM=xterm-256color` |
 | DAP not stopping at breakpoints | Ensure `dlv` is installed and on `$PATH` |
+| Closed file's tab still shows in bufferline | `:q` only closes the window, not the buffer — bufferline lists loaded buffers regardless of whether a window shows them. Use `<leader>bd` (`:bdelete`) to actually drop the buffer and its tab. Careful: `:bdelete` closes the buffer in *every* split showing it, not just the current one. |
 
 Run `:checkhealth` inside Neovim for a full diagnostic.
 
