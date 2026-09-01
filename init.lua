@@ -22,13 +22,12 @@ vim.opt.guicursor = "n-v-c-sm-o-r-cr-ve:hor20,i-ci:hor20-blinkwait300-blinkon200
 vim.api.nvim_create_autocmd("VimLeave", {
   callback = function() io.write("\27[0 q") end,
 })
--- Fix: ensure buffers closed with :q disappear from bufferline
-vim.api.nvim_create_autocmd("BufDelete", {
-  callback = function()
-    vim.cmd("redrawtabline")
-  end,
-})
 vim.opt.scrolloff = 8
+
+-- Buffer navigation
+vim.keymap.set("n", "<S-h>", "<cmd>bprevious<CR>", { desc = "Prev buffer" })
+vim.keymap.set("n", "<S-l>", "<cmd>bnext<CR>", { desc = "Next buffer" })
+vim.keymap.set("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Close buffer" })
 vim.opt.colorcolumn = "100"
 
 -- Folding (nvim-ufo)
@@ -581,27 +580,6 @@ require("lazy").setup({
     end,
   },
 
-  -- Buffer tabs
-  {
-    "akinsho/bufferline.nvim",
-    version = "*",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = function()
-      require("bufferline").setup({
-        options = {
-          diagnostics = "nvim_lsp",
-          close_command = "bdelete! %d",
-          offsets = {
-            { filetype = "NvimTree", text = "Files", separator = true },
-          },
-        },
-      })
-      vim.keymap.set("n", "<S-h>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Prev buffer" })
-      vim.keymap.set("n", "<S-l>", "<cmd>BufferLineCycleNext<CR>", { desc = "Next buffer" })
-      vim.keymap.set("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Close buffer" })
-    end,
-  },
-
   -- Code outline / symbols panel
   {
     "stevearc/aerial.nvim",
@@ -631,11 +609,16 @@ local function find_git_root()
 end
 
 vim.api.nvim_create_autocmd("BufEnter", {
-  callback = function()
-    local git_root = find_git_root()
-    if git_root ~= vim.fn.getcwd() then
-      pcall(vim.fn.chdir, git_root)
+  callback = function(args)
+    if vim.bo[args.buf].buftype ~= "" then
+      return
     end
+    vim.schedule(function()
+      local git_root = find_git_root()
+      if git_root ~= vim.fn.getcwd() then
+        pcall(vim.fn.chdir, git_root)
+      end
+    end)
   end,
 })
 
