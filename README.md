@@ -12,7 +12,7 @@ go install github.com/golang/tools/gopls@latest
 go install golang.org/x/tools/cmd/goimports@latest
 go install github.com/dinkur/golines@latest
 go install github.com/go-delve/delve/cmd/dlv@latest
-brew install stylua prettier fd ripgrep lazygit   # macOS; use apt/dnf equivalents on Linux
+brew install stylua prettier fd ripgrep lazygit tree-sitter-cli   # macOS; use apt/dnf equivalents on Linux
 ```
 
 ```bash
@@ -20,7 +20,7 @@ git clone https://github.com/Rapando/nvim-config ~/.config/nvim
 nvim   # lazy.nvim bootstraps and installs plugins on first launch (1-2 min)
 ```
 
-Inside Neovim: `:TSUpdate` to install Treesitter parsers, `:LspInfo` / `:Lazy` / `:checkhealth` to verify.
+Treesitter parsers (nvim-treesitter `main` branch) are compiled with `tree-sitter-cli` and auto-installed the first time you open a filetype. Use `:LspInfo` / `:Lazy` / `:checkhealth` to verify.
 
 Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.config/nvim ~/.local/share/nvim`.
 
@@ -31,6 +31,7 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 - **Auto-pairs**: nvim-autopairs closes `()`, `[]`, `{}`, `""`, `''`, `` `` `` as you type, treesitter-aware, and cooperates with completion confirm.
 - **Auto-format on save**: conform.nvim — `goimports`+`golines` (Go), `stylua` (Lua), `prettier` (Markdown/JSON/YAML). Manual format: `<leader>cf`. Falls back to LSP formatting if no dedicated formatter is found.
 - **Treesitter**: syntax highlighting, indentation, folds.
+- **Markdown**: render-markdown.nvim renders headings (tiered colours/backgrounds, framed H1/H2), code blocks, tables and checklists in normal mode; the cursor line shows raw markdown. `<leader>mr` toggles rendering, `<leader>mp` opens a live browser preview with real typography.
 - **Project root**: auto-`cd`s to the enclosing `.git` root on buffer enter.
 
 ### Navigation & Search
@@ -42,14 +43,14 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 
 ### Editing
 - **Surround**: `ys`/`cs`/`ds` to add/change/delete surrounding brackets or quotes.
-- **Comment.nvim**: `gcc`/`gc` to toggle comments.
+- **Commenting**: `gcc`/`gc` to toggle comments (built into Neovim).
 - **Spectre**: project-wide find & replace with diff preview.
 - **Undotree**: visual branching undo history.
 - **nvim-ufo**: LSP/treesitter-aware folding; `K` peeks fold content before falling back to hover.
 
 ### Debugging & Testing
 - **nvim-dap** + **nvim-dap-go**: full debugger with UI for Go (delve). UI opens/closes automatically with the session.
-- **Neotest** + **neotest-go**: inline test runner, pass/fail shown in the gutter.
+- **Neotest** + **neotest-golang**: inline test runner, pass/fail shown in the gutter.
 
 ### Git
 - **Lazygit**: full git TUI.
@@ -76,6 +77,7 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 | `nvim-tree/nvim-tree.lua` + `nvim-web-devicons` | File explorer |
 | `kdheepak/lazygit.nvim` | Lazygit integration |
 | `MeanderingProgrammer/render-markdown.nvim` | Markdown inline rendering |
+| `iamcco/markdown-preview.nvim` | Markdown browser preview |
 | `nvim-treesitter/nvim-treesitter` | Syntax highlighting/indent/folds |
 | `nvim-lualine/lualine.nvim` | Status line |
 | `folke/noice.nvim` + `MunifTanjim/nui.nvim` | Floating `:` cmdline (messages/notify overrides disabled) |
@@ -85,8 +87,7 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 | `ThePrimeagen/harpoon` (branch `harpoon2`) | File bookmarks |
 | `folke/flash.nvim` | Jump motion |
 | `kylechui/nvim-surround` | Surround text objects |
-| `numToStr/Comment.nvim` | Line/block commenting |
-| `nvim-neotest/neotest` + `neotest-go` | Test runner (Go) |
+| `nvim-neotest/neotest` + `neotest-golang` | Test runner (Go) |
 | `folke/trouble.nvim` | Diagnostics panel |
 | `akinsho/toggleterm.nvim` | Floating terminal |
 | `folke/todo-comments.nvim` | TODO/FIXME highlights |
@@ -140,7 +141,7 @@ Full spec (config options, dependencies, build steps) lives in `init.lua` — th
 This config only wires up Go. To bring back a language, add:
 1. An LSP block in the `nvim-lspconfig` config (`vim.lsp.config(...)` + `vim.lsp.enable(...)`).
 2. A formatter entry under `formatters_by_ft` in the `conform.nvim` config.
-3. Its treesitter parser to `ensure_installed`.
+3. Its treesitter parser to the `install({...})` list (or just open a file — missing parsers auto-install).
 4. Any language-specific plugin (debugger adapter, test adapter, etc.) as its own `lazy.nvim` spec.
 
 ## Troubleshooting
