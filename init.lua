@@ -282,6 +282,26 @@ require("lazy").setup({
     keys = {
       { "<leader>e", "<cmd>NvimTreeToggle<CR>", desc = "Toggle file explorer" },
     },
+    init = function()
+      -- Open the explorer on startup only for `nvim` / `nvim <dir>`, not `nvim <file>`
+      vim.api.nvim_create_autocmd("VimEnter", {
+        group = vim.api.nvim_create_augroup("nvim_tree_autoopen", { clear = true }),
+        callback = function(data)
+          local is_dir = vim.fn.isdirectory(data.file) == 1
+          local no_args = data.file == "" and vim.bo[data.buf].buftype == ""
+          if not is_dir and not no_args then
+            return
+          end
+          if is_dir then
+            vim.cmd.cd(data.file)
+            -- Replace the empty directory buffer with a scratch one
+            vim.cmd.enew()
+            vim.cmd.bwipeout(data.buf)
+          end
+          require("nvim-tree.api").tree.open()
+        end,
+      })
+    end,
     opts = {
       view = {
         width = 30,
