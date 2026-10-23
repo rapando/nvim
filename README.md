@@ -1,19 +1,40 @@
 # Neovim Configuration
 
-A focused Neovim setup for Go development with LSP, autocomplete, fuzzy finding, and debugging.
+A focused Neovim setup for Go and Python development with LSP, autocomplete, fuzzy finding, and debugging.
 
 ## Install
 
-Requirements: Neovim >= 0.10.0, Git, curl, make, a [Nerd Font](https://www.nerdfonts.com/).
+Requirements: Neovim >= 0.11 (uses `vim.lsp.config`), Git, curl, make, a [Nerd Font](https://www.nerdfonts.com/).
+
+Commands below are for macOS (Homebrew); use apt/dnf equivalents on Linux.
+
+**Common tools**
 
 ```bash
-# LSP, formatters, debugger
-go install github.com/golang/tools/gopls@latest
-go install golang.org/x/tools/cmd/goimports@latest
-go install github.com/dinkur/golines@latest
-go install github.com/go-delve/delve/cmd/dlv@latest
-brew install stylua prettier fd ripgrep lazygit tree-sitter-cli   # macOS; use apt/dnf equivalents on Linux
+brew install stylua prettier fd ripgrep lazygit tree-sitter-cli
 ```
+
+**Go** (LSP, formatters, debugger)
+
+```bash
+go install golang.org/x/tools/gopls@latest
+go install golang.org/x/tools/cmd/goimports@latest
+go install github.com/golangci/golines@latest
+go install github.com/go-delve/delve/cmd/dlv@latest
+```
+
+**Python** (LSP, linter/formatter, Pipfile envs, debugger)
+
+```bash
+brew install pyright ruff pipenv
+# debugpy in its own venv (Homebrew's pip3 refuses global installs); nvim-dap-python picks it up automatically
+python3 -m venv ~/.virtualenvs/debugpy
+~/.virtualenvs/debugpy/bin/pip install debugpy
+```
+
+Make sure `~/go/bin` is on your `$PATH`. Install `pytest` inside each project's env (`pipenv install --dev pytest`) for the test runner.
+
+**Config**
 
 ```bash
 git clone https://github.com/Rapando/nvim-config ~/.config/nvim
@@ -26,10 +47,11 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 
 ## Features
 
-- **LSP**: gopls (Go)
+- **LSP**: gopls (Go), pyright + ruff (Python)
+- **Pipenv**: if the working directory has a `Pipfile`, its virtualenv is activated (`VIRTUAL_ENV`/`PATH`) at startup and on every directory change, so pyright, the debugger, tests and `:terminal` all use it. Lookup checks `.venv/` then `~/.local/share/virtualenvs` (or `$WORKON_HOME`), falling back to `pipenv --venv`.
 - **Completion**: nvim-cmp — sources are LSP, LuaSnip snippets, buffer words, and file paths, in that priority order. `<C-Space>` opens the menu manually, `<Tab>`/`<S-Tab>` cycle, `<CR>` confirms.
 - **Auto-pairs**: nvim-autopairs closes `()`, `[]`, `{}`, `""`, `''`, `` `` `` as you type, treesitter-aware, and cooperates with completion confirm.
-- **Auto-format on save**: conform.nvim — `goimports`+`golines` (Go), `stylua` (Lua), `prettier` (Markdown/JSON/YAML). Manual format: `<leader>cf`. Falls back to LSP formatting if no dedicated formatter is found.
+- **Auto-format on save**: conform.nvim — `goimports`+`golines` (Go), `ruff` organize imports + format (Python), `stylua` (Lua), `prettier` (Markdown/JSON/YAML). Manual format: `<leader>cf`. Falls back to LSP formatting if no dedicated formatter is found.
 - **Treesitter**: syntax highlighting, indentation, folds.
 - **Markdown**: render-markdown.nvim renders headings (tiered colours/backgrounds, framed H1/H2), code blocks, tables and checklists in normal mode; the cursor line shows raw markdown. `<leader>mr` toggles rendering, `<leader>mp` opens a live browser preview with real typography.
 - **Project root**: auto-`cd`s to the enclosing `.git` root on buffer enter.
@@ -49,8 +71,9 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 - **nvim-ufo**: LSP/treesitter-aware folding; `K` peeks fold content before falling back to hover.
 
 ### Debugging & Testing
-- **nvim-dap** + **nvim-dap-go**: full debugger with UI for Go (delve). UI opens/closes automatically with the session.
-- **Neotest** + **neotest-golang**: inline test runner, pass/fail shown in the gutter.
+- **nvim-dap** + **nvim-dap-go**: full debugger with UI for Go (delve).
+- **nvim-dap-python**: same debugger keybindings for Python (debugpy); runs your code with the active Pipenv interpreter. UI opens/closes automatically with the session.
+- **Neotest** + **neotest-golang**: inline test runner, pass/fail shown in the gutter. **neotest-python** (pytest) uses the same keys for Python.
 
 ### Git
 - **Lazygit**: full git TUI.
@@ -70,7 +93,7 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 |--------|---------|
 | `rose-pine/neovim` | Theme (moon variant) |
 | `nvim-telescope/telescope.nvim` + `telescope-fzf-native.nvim` | Fuzzy finder |
-| `neovim/nvim-lspconfig` | LSP config for gopls |
+| `neovim/nvim-lspconfig` | LSP config for gopls, pyright, ruff |
 | `hrsh7th/nvim-cmp` + `cmp-nvim-lsp`, `cmp-buffer`, `cmp-path`, `L3MON4D3/LuaSnip`, `saadparwaiz1/cmp_luasnip` | Completion engine + sources + snippets |
 | `windwp/nvim-autopairs` | Auto-closing brackets |
 | `stevearc/conform.nvim` | Format on save |
@@ -81,13 +104,13 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 | `nvim-treesitter/nvim-treesitter` | Syntax highlighting/indent/folds |
 | `nvim-lualine/lualine.nvim` | Status line |
 | `folke/noice.nvim` + `MunifTanjim/nui.nvim` | Floating `:` cmdline (messages/notify overrides disabled) |
-| `mfussenegger/nvim-dap` + `nvim-dap-ui`, `leoluz/nvim-dap-go` | Debugger (Go) |
+| `mfussenegger/nvim-dap` + `nvim-dap-ui`, `leoluz/nvim-dap-go`, `mfussenegger/nvim-dap-python` | Debugger (Go, Python) |
 | `lewis6991/gitsigns.nvim` | Git signs & blame |
 | `folke/which-key.nvim` | Keybinding popup |
 | `ThePrimeagen/harpoon` (branch `harpoon2`) | File bookmarks |
 | `folke/flash.nvim` | Jump motion |
 | `kylechui/nvim-surround` | Surround text objects |
-| `nvim-neotest/neotest` + `neotest-golang` | Test runner (Go) |
+| `nvim-neotest/neotest` + `neotest-golang`, `neotest-python` | Test runner (Go, Python) |
 | `folke/trouble.nvim` | Diagnostics panel |
 | `akinsho/toggleterm.nvim` | Floating terminal |
 | `folke/todo-comments.nvim` | TODO/FIXME highlights |
@@ -138,7 +161,7 @@ Full spec (config options, dependencies, build steps) lives in `init.lua` — th
 
 ## Adding another language later
 
-This config only wires up Go. To bring back a language, add:
+This config wires up Go and Python. To bring back a language, add:
 1. An LSP block in the `nvim-lspconfig` config (`vim.lsp.config(...)` + `vim.lsp.enable(...)`).
 2. A formatter entry under `formatters_by_ft` in the `conform.nvim` config.
 3. Its treesitter parser to the `install({...})` list (or just open a file — missing parsers auto-install).
@@ -156,7 +179,8 @@ This config only wires up Go. To bring back a language, add:
 | Plugins not installing | `rm -rf ~/.local/share/nvim/lazy`, reopen Neovim |
 | Telescope finds nothing | Install `fd`; make sure you're inside a git repo/directory |
 | Colors wrong | Use a true-color terminal (iTerm2, Kitty, Alacritty); set `TERM=xterm-256color` |
-| DAP not stopping at breakpoints | Ensure `dlv` is installed and on `$PATH` |
+| DAP not stopping at breakpoints | Go: ensure `dlv` is on `$PATH`. Python: ensure `~/.virtualenvs/debugpy/bin/python -c 'import debugpy'` works (see Install) |
+| Python LSP not seeing project packages | Open Neovim from the directory containing the `Pipfile`; check `:lua print(vim.env.VIRTUAL_ENV)` and run `pipenv install` if the env doesn't exist yet |
 | Closed file's tab still shows in bufferline | `:q` only closes the window, not the buffer — bufferline lists loaded buffers regardless of whether a window shows them. Use `<leader>bd` (`:bdelete`) to actually drop the buffer and its tab. Careful: `:bdelete` closes the buffer in *every* split showing it, not just the current one. |
 
 Run `:checkhealth` inside Neovim for a full diagnostic.

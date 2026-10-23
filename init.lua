@@ -47,6 +47,77 @@ vim.keymap.set("n", "<S-h>", "<cmd>bprevious<CR>", { desc = "Prev buffer" })
 vim.keymap.set("n", "<S-l>", "<cmd>bnext<CR>", { desc = "Next buffer" })
 vim.keymap.set("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Close buffer" })
 
+-- Pipenv: if the cwd has a Pipfile, activate its virtualenv (VIRTUAL_ENV + PATH) so pyright,
+-- dap-python, neotest and :terminal all use it. Runs before plugins so LSP starts with it.
+vim.filetype.add({ filename = { Pipfile = "toml", ["Pipfile.lock"] = "json" } })
+
+local base_path = vim.env.PATH
+local base_venv = vim.env.VIRTUAL_ENV
+
+-- Cheap lookup that avoids spawning pipenv (~1s): in-project .venv, or a venv under
+-- WORKON_HOME whose .project file points back at this directory.
+local function find_pipenv_venv(dir)
+  if vim.uv.fs_stat(dir .. "/.venv/bin/python") then
+    return dir .. "/.venv"
+  end
+  local home = vim.env.WORKON_HOME or (vim.env.HOME .. "/.local/share/virtualenvs")
+  local name = vim.fs.basename(dir):gsub("[^%w_%-]", "_")
+  for _, venv in ipairs(vim.fn.glob(home .. "/" .. name .. "-*", false, true)) do
+    local f = io.open(venv .. "/.project")
+    if f then
+      local project = vim.trim(f:read("*a"))
+      f:close()
+      if project == dir then
+        return venv
+      end
+    end
+  end
+end
+
+local function set_python_venv(venv)
+  if vim.env.VIRTUAL_ENV == venv then
+    return
+  end
+  vim.env.VIRTUAL_ENV = venv
+  vim.env.PATH = venv and (venv .. "/bin:" .. base_path) or base_path
+  -- Point already-running pyright clients at the new interpreter
+  local python = venv and (venv .. "/bin/python") or vim.fn.exepath("python3")
+  for _, client in ipairs(vim.lsp.get_clients({ name = "pyright" })) do
+    client.settings = vim.tbl_deep_extend("force", client.settings or {}, {
+      python = { pythonPath = python },
+    })
+    client:notify("workspace/didChangeConfiguration", { settings = client.settings })
+  end
+  if venv then
+    vim.notify("Pipenv: " .. vim.fs.basename(venv), vim.log.levels.INFO)
+  end
+end
+
+local function load_pipenv(dir)
+  if not vim.uv.fs_stat(dir .. "/Pipfile") then
+    set_python_venv(base_venv)
+    return
+  end
+  local venv = find_pipenv_venv(dir)
+  if venv then
+    set_python_venv(venv)
+  elseif vim.fn.executable("pipenv") == 1 then
+    vim.system({ "pipenv", "--venv" }, { cwd = dir, text = true }, vim.schedule_wrap(function(out)
+      if out.code == 0 and vim.uv.cwd() == dir then
+        set_python_venv(vim.trim(out.stdout))
+      end
+    end))
+  end
+end
+
+load_pipenv(vim.uv.cwd())
+vim.api.nvim_create_autocmd("DirChanged", {
+  group = vim.api.nvim_create_augroup("pipenv_venv", { clear = true }),
+  callback = function()
+    load_pipenv(vim.uv.cwd())
+  end,
+})
+
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
@@ -165,6 +236,24 @@ require("lazy").setup({
       })
       vim.lsp.enable("gopls")
 
+      -- Python (pyright for types/navigation, ruff for lint + quick fixes)
+      vim.lsp.config("pyright", {
+        capabilities = require("cmp_nvim_lsp").default_capabilities(),
+        before_init = function(_, config)
+          -- Use the active venv (set by the Pipfile loader above), else whatever python3 is on PATH
+          local venv = vim.env.VIRTUAL_ENV
+          config.settings = vim.tbl_deep_extend("force", config.settings or {}, {
+            python = { pythonPath = venv and (venv .. "/bin/python") or vim.fn.exepath("python3") },
+          })
+        end,
+      })
+      vim.lsp.config("ruff", {
+        on_attach = function(client)
+          client.server_capabilities.hoverProvider = false -- leave hover to pyright
+        end,
+      })
+      vim.lsp.enable({ "pyright", "ruff" })
+
       -- Keybindings (K is defined below so it can peek folds first)
       vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
       vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "Go to references" })
@@ -262,6 +351,7 @@ require("lazy").setup({
     opts = {
       formatters_by_ft = {
         go = { "goimports", "golines" },
+        python = { "ruff_organize_imports", "ruff_format" },
         lua = { "stylua" },
         markdown = { "prettier" },
         json = { "prettier" },
@@ -405,7 +495,7 @@ require("lazy").setup({
     config = function()
       local ts = require("nvim-treesitter")
       ts.install({
-        "go", "gomod", "gosum", "gowork", "lua", "vim", "vimdoc", "query",
+        "go", "gomod", "gosum", "gowork", "python", "toml", "lua", "vim", "vimdoc", "query",
         "markdown", "markdown_inline", "json", "sql", "yaml", "bash", "html",
       })
 
@@ -489,13 +579,14 @@ require("lazy").setup({
     },
   },
 
-  -- Debugger (Go)
+  -- Debugger (Go, Python)
   {
     "mfussenegger/nvim-dap",
     dependencies = {
       "rcarriga/nvim-dap-ui",
       "nvim-neotest/nvim-nio",
       "leoluz/nvim-dap-go",
+      "mfussenegger/nvim-dap-python",
     },
     keys = {
       { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "Toggle breakpoint" },
@@ -511,6 +602,14 @@ require("lazy").setup({
 
       dapui.setup()
       require("dap-go").setup()
+      -- debugpy adapter: dedicated ~/.virtualenvs/debugpy venv (see README), a `debugpy-adapter` on PATH,
+      -- else python3 (the active venv's, if it has debugpy). The debuggee runs with the active venv's python.
+      local debugpy_python = vim.fn.expand("~/.virtualenvs/debugpy/bin/python")
+      require("dap-python").setup(
+        vim.fn.executable(debugpy_python) == 1 and debugpy_python
+          or vim.fn.executable("debugpy-adapter") == 1 and "debugpy-adapter"
+          or "python3"
+      )
 
       dap.listeners.after.event_initialized["dapui_config"] = function() dapui.open() end
       dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close() end
@@ -601,6 +700,7 @@ require("lazy").setup({
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
       "fredrikaverpil/neotest-golang",
+      "nvim-neotest/neotest-python",
     },
     keys = {
       { "<leader>tt", function() require("neotest").run.run() end, desc = "Run nearest test" },
@@ -612,6 +712,7 @@ require("lazy").setup({
       require("neotest").setup({
         adapters = {
           require("neotest-golang")({}),
+          require("neotest-python")({ runner = "pytest" }),
         },
       })
     end,
