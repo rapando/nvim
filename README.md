@@ -80,6 +80,7 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 - **Gitsigns**: gutter indicators, inline blame, hunk staging.
 
 ### UI & Diagnostics
+- **Appearance picker** (`<leader>ua`): one window showing the current theme, terminal font and size. Themes (Rosé Pine, Tokyo Night, Catppuccin, Kanagawa, each with a light variant) preview live as you move through the list; `<CR>` keeps and saves the choice to `~/.local/share/nvim/appearance.json`, `<Esc>` reverts. Font and size changes need **Ghostty ≥ 1.3**: they're written to a marked block at the end of Ghostty's config (your own lines are left alone) and applied through Ghostty's AppleScript `perform action`. The first time, macOS asks whether your terminal may control Ghostty. In other terminals only themes are available.
 - **lualine**: statusline with the active virtualenv and attached LSP clients, plus a tabline listing open buffers.
 - **noice.nvim**: floating popup for the `:` command line (messages/notifications left untouched — no cmdline history/LSP-message overrides).
 - **which-key**: shows available bindings after `<leader>`.
@@ -92,7 +93,8 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 
 | Plugin | Purpose |
 |--------|---------|
-| `rose-pine/neovim` | Theme (moon variant) |
+| `rose-pine/neovim` | Default theme (moon variant) |
+| `folke/tokyonight.nvim`, `catppuccin/nvim`, `rebelot/kanagawa.nvim` | Extra themes for the appearance picker (lazy-loaded) |
 | `nvim-telescope/telescope.nvim` (latest release tag) + `telescope-fzf-native.nvim` | Fuzzy finder |
 | `neovim/nvim-lspconfig` | LSP config for gopls, pyright, ruff |
 | `hrsh7th/nvim-cmp` + `cmp-nvim-lsp`, `cmp-buffer`, `cmp-path`, `L3MON4D3/LuaSnip`, `saadparwaiz1/cmp_luasnip` | Completion engine + sources + snippets |
@@ -131,7 +133,8 @@ lua/config/options.lua   editor options, folding, diagnostics display
 lua/config/pipenv.lua    Pipfile virtualenv activation (runs before plugins)
 lua/config/lazy.lua      lazy.nvim bootstrap + setup (imports lua/plugins/)
 lua/config/autocmds.lua  auto-cd to project root
-lua/config/keymaps.lua   buffer, split and hover keymaps
+lua/config/keymaps.lua   buffer, split, hover and appearance keymaps
+lua/config/appearance.lua  theme + terminal font picker (<leader>ua)
 lua/plugins/*.lua        one file per area: colorscheme, ui, navigation, editing, lsp,
                          completion, formatting, treesitter, markdown, git, debug, test
 ```
@@ -154,7 +157,7 @@ Drop a new file in `lua/plugins/` returning a list of specs and lazy.nvim picks 
 
 **Completion**: `<C-Space>` trigger · `<Tab>`/`<S-Tab>` next/prev · `<CR>` confirm selected · `<C-e>` abort
 
-**Editing**: `gcc`/`gc` comment · `ys{motion}{char}`/`cs{old}{new}`/`ds{char}` surround · `<leader>cf` format · `<leader>u` undotree
+**Editing**: `gcc`/`gc` comment · `ys{motion}{char}`/`cs{old}{new}`/`ds{char}` surround · `<leader>cf` format · `<leader>uu` undotree
 
 **Folding**: `zR` open all · `zM` close all
 
@@ -171,6 +174,8 @@ Drop a new file in `lua/plugins/` returning a list of specs and lazy.nvim picks 
 **TODO comments**: `]t`/`[t` next/prev · `<leader>ft` search all
 
 **Terminal**: `<C-\>` toggle floating terminal
+
+**Appearance**: `<leader>ua` open the Appearance window (`t` theme · `f` font · `-`/`+` font size · `q` close) · `<leader>ut` pick theme · `<leader>uf` pick terminal font
 
 **File explorer**: `<leader>e` toggle nvim-tree
 
@@ -194,7 +199,9 @@ This config wires up Go and Python. To bring back a language, add:
 | Formatting too slow / times out | Raise `timeout_ms` in `lua/plugins/formatting.lua`, or format manually with `<leader>cf` |
 | Plugins not installing | `rm -rf ~/.local/share/nvim/lazy`, reopen Neovim |
 | Telescope finds nothing | Install `fd`; make sure you're inside a git repo/directory |
-| Colors wrong | Use a true-color terminal (iTerm2, Kitty, Alacritty); set `TERM=xterm-256color` |
+| Colors wrong | Use a true-color terminal (iTerm2, Kitty, Alacritty, Ghostty); set `TERM=xterm-256color` |
+| Font picker does nothing / "Ghostty didn't accept the change" | Needs Ghostty ≥ 1.3. Allow your terminal under System Settings → Privacy & Security → Automation → Ghostty. The config is still written, so `cmd+shift+,` (reload config) applies it by hand. To undo, delete the `# >>> nvim appearance` block from Ghostty's config |
+| Want a different theme list | Edit `M.themes` at the top of `lua/config/appearance.lua`; add the theme plugin to `lua/plugins/colorscheme.lua` with `lazy = true` |
 | DAP not stopping at breakpoints | Go: ensure `dlv` is on `$PATH`. Python: ensure `~/.virtualenvs/debugpy/bin/python -c 'import debugpy'` works (see Install) |
 | Python LSP not seeing project packages | Open Neovim from the directory containing the `Pipfile`; check `:lua print(vim.env.VIRTUAL_ENV)` and run `pipenv install` if the env doesn't exist yet |
 | Closed file's tab still shows at the top | `:q` only closes the window, not the buffer — the tabline lists loaded buffers regardless of whether a window shows them. Use `<leader>bd` (`:bdelete`) to actually drop the buffer and its tab. Careful: `:bdelete` closes the buffer in *every* split showing it, not just the current one. |

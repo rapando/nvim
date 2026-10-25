@@ -26,7 +26,13 @@ return {
           RenderMarkdownCodeBorder = { bg = "overlay" },
         },
       })
-      vim.cmd([[colorscheme rose-pine]])
+      -- Applies the theme saved by the appearance picker (<leader>ua), else Rosé Pine Moon
+      require("config.appearance").setup()
     end,
   },
+
+  -- More themes for the appearance picker; lazy.nvim loads each one on :colorscheme
+  { "folke/tokyonight.nvim", lazy = true },
+  { "catppuccin/nvim", name = "catppuccin", lazy = true },
+  { "rebelot/kanagawa.nvim", lazy = true },
 }

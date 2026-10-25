@@ -21,3 +21,8 @@ vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move to right split" })
 vim.keymap.set("n", "<leader>wh", "<cmd>split<CR>", { desc = "Split horizontally" })
 vim.keymap.set("n", "<leader>wv", "<cmd>vsplit<CR>", { desc = "Split vertically" })
 vim.keymap.set("n", "<leader>wc", "<C-w>c", { desc = "Close split" })
+
+-- Appearance: theme + terminal font
+vim.keymap.set("n", "<leader>ua", function() require("config.appearance").open() end, { desc = "Appearance" })
+vim.keymap.set("n", "<leader>ut", function() require("config.appearance").pick_theme() end, { desc = "Pick theme" })
+vim.keymap.set("n", "<leader>uf", function() require("config.appearance").pick_font() end, { desc = "Pick terminal font" })

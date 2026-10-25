@@ -6,7 +6,7 @@ return {
     dependencies = { "nvim-tree/nvim-web-devicons", "rose-pine/neovim" },
     opts = {
       options = {
-        theme = "rose-pine",
+        theme = "auto", -- follow whichever colorscheme is active
         globalstatus = true,
       },
       sections = {
@@ -34,6 +34,7 @@ return {
               aerial = "Outline",
               toggleterm = "Terminal",
               lazy = "Lazy",
+              appearance = "Appearance",
             },
           },
         },
@@ -90,6 +91,7 @@ return {
         { "<leader>m", group = "markdown" },
         { "<leader>s", group = "search/replace" },
         { "<leader>t", group = "test" },
+        { "<leader>u", group = "ui" },
         { "<leader>w", group = "window" },
         { "<leader>x", group = "diagnostics" },
       },
