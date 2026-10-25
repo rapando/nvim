@@ -48,20 +48,20 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 ## Features
 
 - **LSP**: gopls (Go), pyright + ruff (Python)
-- **Pipenv**: if the working directory has a `Pipfile`, its virtualenv is activated (`VIRTUAL_ENV`/`PATH`) at startup and on every directory change, so pyright, the debugger, tests and `:terminal` all use it. Lookup checks `.venv/` then `~/.local/share/virtualenvs` (or `$WORKON_HOME`), falling back to `pipenv --venv`.
-- **Completion**: nvim-cmp — sources are LSP, LuaSnip snippets, buffer words, and file paths, in that priority order. `<C-Space>` opens the menu manually, `<Tab>`/`<S-Tab>` cycle, `<CR>` confirms.
+- **Pipenv**: if the working directory has a `Pipfile`, its virtualenv is activated (`VIRTUAL_ENV`/`PATH`) at startup and on every directory change (including the automatic project-root `cd`), so pyright, the debugger, tests and `:terminal` all use it. Lookup checks `.venv/` then `~/.local/share/virtualenvs` (or `$WORKON_HOME`), falling back to `pipenv --venv`.
+- **Completion**: nvim-cmp — sources are LSP, LuaSnip snippets, buffer words, and file paths, in that priority order. `<C-Space>` opens the menu manually, `<Tab>`/`<S-Tab>` cycle, `<CR>` confirms the item you selected (it never auto-picks the first one).
 - **Auto-pairs**: nvim-autopairs closes `()`, `[]`, `{}`, `""`, `''`, `` `` `` as you type, treesitter-aware, and cooperates with completion confirm.
 - **Auto-format on save**: conform.nvim — `goimports`+`golines` (Go), `ruff` organize imports + format (Python), `stylua` (Lua), `prettier` (Markdown/JSON/YAML). Manual format: `<leader>cf`. Falls back to LSP formatting if no dedicated formatter is found.
 - **Treesitter**: syntax highlighting, indentation, folds.
+- **Diagnostics**: messages shown inline (virtual text) next to the code, sorted by severity, with icons in the sign column; `<leader>cd` opens the full message in a float.
 - **Markdown**: render-markdown.nvim renders headings (tiered colours/backgrounds, framed H1/H2), code blocks, tables and checklists in normal mode; the cursor line shows raw markdown. `<leader>mr` toggles rendering, `<leader>mp` opens a live browser preview with real typography.
-- **Project root**: auto-`cd`s to the enclosing `.git` root on buffer enter.
+- **Project root**: auto-`cd`s on buffer enter to the nearest `Pipfile` or `go.mod` directory, else the enclosing `.git` root (so subprojects in a monorepo get their own root and venv).
 
 ### Navigation & Search
-- **Telescope** (+ fzf-native): fuzzy finder for files, grep, buffers, help.
+- **Telescope** (+ fzf-native): fuzzy finder for files, grep, buffers, help. Find files includes dotfiles but skips `.git/`.
 - **Harpoon**: bookmark up to 4 files per project.
 - **Flash**: 2-keystroke jump anywhere on screen.
 - **Aerial**: sidebar symbols outline.
-- **Bufferline**: open buffers as tabs at the top.
 
 ### Editing
 - **Surround**: `ys`/`cs`/`ds` to add/change/delete surrounding brackets or quotes.
@@ -80,6 +80,7 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 - **Gitsigns**: gutter indicators, inline blame, hunk staging.
 
 ### UI & Diagnostics
+- **lualine**: statusline with the active virtualenv and attached LSP clients, plus a tabline listing open buffers.
 - **noice.nvim**: floating popup for the `:` command line (messages/notifications left untouched — no cmdline history/LSP-message overrides).
 - **which-key**: shows available bindings after `<leader>`.
 - **todo-comments**: highlights `TODO`/`FIXME`/`NOTE`/`HACK`.
@@ -92,7 +93,7 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 | Plugin | Purpose |
 |--------|---------|
 | `rose-pine/neovim` | Theme (moon variant) |
-| `nvim-telescope/telescope.nvim` + `telescope-fzf-native.nvim` | Fuzzy finder |
+| `nvim-telescope/telescope.nvim` (latest release tag) + `telescope-fzf-native.nvim` | Fuzzy finder |
 | `neovim/nvim-lspconfig` | LSP config for gopls, pyright, ruff |
 | `hrsh7th/nvim-cmp` + `cmp-nvim-lsp`, `cmp-buffer`, `cmp-path`, `L3MON4D3/LuaSnip`, `saadparwaiz1/cmp_luasnip` | Completion engine + sources + snippets |
 | `windwp/nvim-autopairs` | Auto-closing brackets |
@@ -102,7 +103,7 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 | `MeanderingProgrammer/render-markdown.nvim` | Markdown inline rendering |
 | `iamcco/markdown-preview.nvim` | Markdown browser preview |
 | `nvim-treesitter/nvim-treesitter` | Syntax highlighting/indent/folds |
-| `nvim-lualine/lualine.nvim` | Status line |
+| `nvim-lualine/lualine.nvim` | Status line + buffer tabs |
 | `folke/noice.nvim` + `MunifTanjim/nui.nvim` | Floating `:` cmdline (messages/notify overrides disabled) |
 | `mfussenegger/nvim-dap` + `nvim-dap-ui`, `leoluz/nvim-dap-go`, `mfussenegger/nvim-dap-python` | Debugger (Go, Python) |
 | `lewis6991/gitsigns.nvim` | Git signs & blame |
@@ -118,26 +119,40 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 | `mbbill/undotree` | Undo tree viewer |
 | `nvim-pack/nvim-spectre` | Find & replace |
 | `kevinhwang91/nvim-ufo` + `promise-async` | Folding |
-| `akinsho/bufferline.nvim` | Buffer tabs |
 | `stevearc/aerial.nvim` | Symbols outline |
 
-Full spec (config options, dependencies, build steps) lives in `init.lua` — the table above is a map for finding your way there, not a duplicate of it.
+Full specs (config options, dependencies, build steps) live in `lua/plugins/` — the table above is a map for finding your way there, not a duplicate of it.
+
+## Layout
+
+```
+init.lua                 leader key, then loads the modules below in order
+lua/config/options.lua   editor options, folding, diagnostics display
+lua/config/pipenv.lua    Pipfile virtualenv activation (runs before plugins)
+lua/config/lazy.lua      lazy.nvim bootstrap + setup (imports lua/plugins/)
+lua/config/autocmds.lua  auto-cd to project root
+lua/config/keymaps.lua   buffer, split and hover keymaps
+lua/plugins/*.lua        one file per area: colorscheme, ui, navigation, editing, lsp,
+                         completion, formatting, treesitter, markdown, git, debug, test
+```
+
+Drop a new file in `lua/plugins/` returning a list of specs and lazy.nvim picks it up.
 
 ## Shortcuts
 
 `<leader>` is **Space**.
 
-**Splits/Windows**: `<C-h/j/k/l>` move · `<leader>sh`/`sv` split horiz/vert · `<leader>sc` close
+**Splits/Windows**: `<C-h/j/k/l>` move · `<leader>wh`/`wv` split horiz/vert · `<leader>wc` close
 
-**Buffers**: `<S-h>`/`<S-l>` prev/next tab · `<leader>bd` close
+**Buffers**: `<S-h>`/`<S-l>` prev/next buffer (shown as tabs at the top) · `<leader>bd` close
 
 **Files & Search**: `<leader>ff` find files · `<leader>fg` live grep · `<leader>fb` buffers · `<leader>fh` help tags · `<leader>/` fuzzy search in file
 
-**Navigation**: `s`/`S` Flash jump / treesitter jump · `<leader>ha` harpoon add · `<leader>hh` harpoon menu · `<leader>1-4` harpoon jump · `<leader>as` aerial outline · `{`/`}` prev/next symbol
+**Navigation**: `s`/`S` Flash jump / treesitter jump · `<leader>ha` harpoon add · `<leader>hh` harpoon menu · `<leader>1-4` harpoon jump · `<leader>as` aerial outline · `[[`/`]]` prev/next symbol
 
-**LSP**: `gd` definition · `gr` references · `K` hover (or peek fold) · `<leader>rn` rename · `<leader>ca` code action · `<leader>ld` diagnostics float
+**LSP** (only in buffers with a server attached): `gd` definition · `grr` references · `gri` implementation · `K` hover (or peek fold) · `<leader>cr` rename · `<leader>ca` code action · `<leader>cd` diagnostics float
 
-**Completion**: `<C-Space>` trigger · `<Tab>`/`<S-Tab>` next/prev · `<CR>` confirm · `<C-e>` abort
+**Completion**: `<C-Space>` trigger · `<Tab>`/`<S-Tab>` next/prev · `<CR>` confirm selected · `<C-e>` abort
 
 **Editing**: `gcc`/`gc` comment · `ys{motion}{char}`/`cs{old}{new}`/`ds{char}` surround · `<leader>cf` format · `<leader>u` undotree
 
@@ -149,7 +164,7 @@ Full spec (config options, dependencies, build steps) lives in `init.lua` — th
 
 **Testing**: `<leader>tt` run nearest · `<leader>tf` run file · `<leader>ts` summary · `<leader>to` output
 
-**Git**: `<leader>gg` Lazygit · `<leader>gb` toggle blame · `<leader>hs`/`hr`/`hp` stage/reset/preview hunk · `]h`/`[h` next/prev hunk
+**Git**: `<leader>gg` Lazygit · `<leader>gb` toggle blame · `<leader>gs`/`gr`/`gp` stage/reset/preview hunk · `]h`/`[h` next/prev hunk
 
 **Diagnostics**: `<leader>xx` toggle Trouble · `<leader>xd` buffer diagnostics · `<leader>xl` loclist · `<leader>xq` quickfix
 
@@ -162,10 +177,11 @@ Full spec (config options, dependencies, build steps) lives in `init.lua` — th
 ## Adding another language later
 
 This config wires up Go and Python. To bring back a language, add:
-1. An LSP block in the `nvim-lspconfig` config (`vim.lsp.config(...)` + `vim.lsp.enable(...)`).
-2. A formatter entry under `formatters_by_ft` in the `conform.nvim` config.
-3. Its treesitter parser to the `install({...})` list (or just open a file — missing parsers auto-install).
-4. Any language-specific plugin (debugger adapter, test adapter, etc.) as its own `lazy.nvim` spec.
+1. An LSP block in the `nvim-lspconfig` config (`lua/plugins/lsp.lua`) (`vim.lsp.config(...)` + `vim.lsp.enable(...)`).
+2. A formatter entry under `formatters_by_ft` in the `conform.nvim` config (`lua/plugins/formatting.lua`).
+3. Its treesitter parser to the `install({...})` list in `lua/plugins/treesitter.lua` (or just open a file — missing parsers auto-install).
+4. Any language-specific plugin (debugger adapter, test adapter, etc.) as its own `lazy.nvim` spec (or extend `debug.lua` / `test.lua`).
+5. Optionally its project marker (e.g. `Cargo.toml`) to the root list in `lua/config/autocmds.lua`.
 
 ## Troubleshooting
 
@@ -175,13 +191,13 @@ This config wires up Go and Python. To bring back a language, add:
 | Completion not appearing | Confirm LSP is running (`:LspInfo`), try `<C-Space>` manually |
 | Auto-pairs not working | Check `:Lazy` shows `nvim-autopairs` loaded; try a new line or after whitespace |
 | Formatter not found | Install it, verify with `which <formatter>`, restart Neovim |
-| Formatting too slow / times out | Raise `timeout_ms` in the `conform.setup()` call, or format manually with `<leader>cf` |
+| Formatting too slow / times out | Raise `timeout_ms` in `lua/plugins/formatting.lua`, or format manually with `<leader>cf` |
 | Plugins not installing | `rm -rf ~/.local/share/nvim/lazy`, reopen Neovim |
 | Telescope finds nothing | Install `fd`; make sure you're inside a git repo/directory |
 | Colors wrong | Use a true-color terminal (iTerm2, Kitty, Alacritty); set `TERM=xterm-256color` |
 | DAP not stopping at breakpoints | Go: ensure `dlv` is on `$PATH`. Python: ensure `~/.virtualenvs/debugpy/bin/python -c 'import debugpy'` works (see Install) |
 | Python LSP not seeing project packages | Open Neovim from the directory containing the `Pipfile`; check `:lua print(vim.env.VIRTUAL_ENV)` and run `pipenv install` if the env doesn't exist yet |
-| Closed file's tab still shows in bufferline | `:q` only closes the window, not the buffer — bufferline lists loaded buffers regardless of whether a window shows them. Use `<leader>bd` (`:bdelete`) to actually drop the buffer and its tab. Careful: `:bdelete` closes the buffer in *every* split showing it, not just the current one. |
+| Closed file's tab still shows at the top | `:q` only closes the window, not the buffer — the tabline lists loaded buffers regardless of whether a window shows them. Use `<leader>bd` (`:bdelete`) to actually drop the buffer and its tab. Careful: `:bdelete` closes the buffer in *every* split showing it, not just the current one. |
 
 Run `:checkhealth` inside Neovim for a full diagnostic.
 
