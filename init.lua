@@ -227,7 +227,7 @@ require("lazy").setup({
   -- LSP
   {
     "neovim/nvim-lspconfig",
-    event = { "BufReadPre", "BufNewFile" },
+    event = "FileType",
     dependencies = { "hrsh7th/cmp-nvim-lsp" },
     config = function()
       -- Go
@@ -401,6 +401,21 @@ require("lazy").setup({
         git_ignored = false,
       },
     },
+    config = function(_, opts)
+      require("nvim-tree").setup(opts)
+      -- Open newly created files (`a` in the tree) in the editor window, so you don't keep
+      -- typing into the unnamed scratch buffer (no filetype -> no highlighting, :w fails)
+      local api = require("nvim-tree.api")
+      api.events.subscribe(api.events.Event.FileCreated, function(data)
+        vim.schedule(function()
+          vim.cmd.wincmd("p")
+          if vim.bo.filetype == "NvimTree" then
+            vim.cmd.vsplit()
+          end
+          vim.cmd.edit(vim.fn.fnameescape(data.fname))
+        end)
+      end)
+    end,
   },
 
   -- Lazygit integration
@@ -573,6 +588,7 @@ require("lazy").setup({
       popupmenu = { enabled = false },
       notify = { enabled = false },
       lsp = {
+        progress = { enabled = false }, -- pyright reports progress on every edit, stacking up messages
         hover = { enabled = false },
         signature = { enabled = false },
       },
