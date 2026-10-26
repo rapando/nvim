@@ -97,13 +97,30 @@ return {
       -- Open newly created files (`a` in the tree) in the editor window, so you don't keep
       -- typing into the unnamed scratch buffer (no filetype -> no highlighting, :w fails)
       local api = require("nvim-tree.api")
+      local function editable(win)
+        local buf = vim.api.nvim_win_get_buf(win)
+        return vim.api.nvim_win_get_config(win).relative == "" and vim.bo[buf].buftype == ""
+      end
       api.events.subscribe(api.events.Event.FileCreated, function(data)
         vim.schedule(function()
-          vim.cmd.wincmd("p")
-          if vim.bo.filetype == "NvimTree" then
-            vim.cmd.vsplit()
+          local file = vim.fn.fnameescape(data.fname)
+          -- the window used last, else any file window in this tab
+          local target = vim.fn.win_getid(vim.fn.winnr("#"))
+          if target == 0 or not editable(target) then
+            target = vim.iter(vim.api.nvim_tabpage_list_wins(0)):find(editable)
           end
-          vim.cmd.edit(vim.fn.fnameescape(data.fname))
+          if target then
+            vim.api.nvim_set_current_win(target)
+            vim.cmd.edit(file)
+            return
+          end
+          -- Only the tree is open: splitting it would hand the tree half the screen,
+          -- so open the file to its right and put the tree back to its set width
+          local tree = api.tree.winid()
+          vim.cmd("botright vsplit " .. file)
+          if tree then
+            vim.api.nvim_win_set_width(tree, opts.view.width)
+          end
         end)
       end)
     end,

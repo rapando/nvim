@@ -54,7 +54,9 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 - **Auto-format on save**: conform.nvim — `goimports`+`golines` (Go), `ruff` organize imports + format (Python), `stylua` (Lua), `prettier` (Markdown/JSON/YAML). Manual format: `<leader>cf`. Falls back to LSP formatting if no dedicated formatter is found.
 - **Treesitter**: syntax highlighting, indentation, folds.
 - **Diagnostics**: messages shown inline (virtual text) next to the code, sorted by severity, with icons in the sign column; `<leader>cd` opens the full message in a float.
-- **Markdown**: render-markdown.nvim renders headings (tiered colours/backgrounds, framed H1/H2), code blocks, tables and checklists in normal mode; the cursor line shows raw markdown. `<leader>mr` toggles rendering, `<leader>mp` opens a live browser preview with real typography.
+- **Markdown**: render-markdown.nvim renders headings (tiered colours/backgrounds, framed H1/H2), code blocks, tables and checklists in normal mode; the cursor line shows raw markdown. `<leader>mr` toggles rendering, `<leader>mp` opens a live browser preview with real typography. Images (`![alt](path.png)`) render inline below their line in Ghostty/kitty via snacks.nvim.
+- **mdx** (our own plugin, in `mdx.nvim/`): adds task progress after headings, bars and a min/max/mean line for numeric table columns, runnable code blocks (`<leader>mx`: Python with the Pipfile venv, Go, shell, Lua), broken-link warnings, Mermaid flowcharts drawn as text, and a project-wide heading outline. See [mdx.nvim/README.md](mdx.nvim/README.md).
+- **Live reload**: open files update on screen as soon as another program (Claude, git, a formatter) changes them on disk, without switching back to Neovim. If you have unsaved edits in that buffer, Neovim asks which version to keep instead of overwriting them.
 - **Project root**: auto-`cd`s on buffer enter to the nearest `Pipfile` or `go.mod` directory, else the enclosing `.git` root (so subprojects in a monorepo get their own root and venv).
 
 ### Navigation & Search
@@ -104,6 +106,8 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 | `kdheepak/lazygit.nvim` | Lazygit integration |
 | `MeanderingProgrammer/render-markdown.nvim` | Markdown inline rendering |
 | `iamcco/markdown-preview.nvim` | Markdown browser preview |
+| `folke/snacks.nvim` | Inline markdown images (only the `image` module is enabled) |
+| `mdx` (local, `mdx.nvim/`) | Markdown extras on top of render-markdown |
 | `nvim-treesitter/nvim-treesitter` | Syntax highlighting/indent/folds |
 | `nvim-lualine/lualine.nvim` | Status line + buffer tabs |
 | `folke/noice.nvim` + `MunifTanjim/nui.nvim` | Floating `:` cmdline (messages/notify overrides disabled) |
@@ -137,13 +141,15 @@ lua/config/keymaps.lua   buffer, split, hover and appearance keymaps
 lua/config/appearance.lua  theme + terminal font picker (<leader>ua)
 lua/plugins/*.lua        one file per area: colorscheme, ui, navigation, editing, lsp,
                          completion, formatting, treesitter, markdown, git, debug, test
+mdx.nvim/                our markdown plugin (loaded by lua/plugins/markdown.lua)
+Makefile                 `make test-md` runs the mdx smoke test
 ```
 
 Drop a new file in `lua/plugins/` returning a list of specs and lazy.nvim picks it up.
 
 ## Shortcuts
 
-`<leader>` is **Space**.
+`<leader>` is **Space**. The same list as tables: [SHORTCUTS.md](SHORTCUTS.md).
 
 **Splits/Windows**: `<C-h/j/k/l>` move · `<leader>wh`/`wv` split horiz/vert · `<leader>wc` close
 
@@ -158,6 +164,8 @@ Drop a new file in `lua/plugins/` returning a list of specs and lazy.nvim picks 
 **Completion**: `<C-Space>` trigger · `<Tab>`/`<S-Tab>` next/prev · `<CR>` confirm selected · `<C-e>` abort
 
 **Editing**: `gcc`/`gc` comment · `ys{motion}{char}`/`cs{old}{new}`/`ds{char}` surround · `<leader>cf` format · `<leader>uu` undotree
+
+**Markdown**: `<leader>mr` toggle in-buffer render · `<leader>mp` browser preview · `<leader>mx` run code block · `<leader>ml` check links (project) · `<leader>mo` heading outline (project)
 
 **Folding**: `zR` open all · `zM` close all
 
@@ -201,6 +209,8 @@ This config wires up Go and Python. To bring back a language, add:
 | Telescope finds nothing | Install `fd`; make sure you're inside a git repo/directory |
 | Colors wrong | Use a true-color terminal (iTerm2, Kitty, Alacritty, Ghostty); set `TERM=xterm-256color` |
 | Font picker does nothing / "Ghostty didn't accept the change" | Needs Ghostty ≥ 1.3. Allow your terminal under System Settings → Privacy & Security → Automation → Ghostty. The config is still written, so `cmd+shift+,` (reload config) applies it by hand. To undo, delete the `# >>> nvim appearance` block from Ghostty's config |
+| Markdown images don't show | Needs Ghostty or kitty (not Terminal.app/iTerm2). In tmux add `set -g allow-passthrough on`. PNG works as-is; other formats need `brew install imagemagick`, mermaid needs `npm i -g @mermaid-js/mermaid-cli`. Run `:checkhealth snacks` |
+| mdx extras missing or doubled after `:Lazy update` | Run `make test-md`, then `:checkhealth mdx`. render-markdown is pinned to `^8`; if a release broke the handler, `git checkout lazy-lock.json` + `:Lazy restore` |
 | Want a different theme list | Edit `M.themes` at the top of `lua/config/appearance.lua`; add the theme plugin to `lua/plugins/colorscheme.lua` with `lazy = true` |
 | DAP not stopping at breakpoints | Go: ensure `dlv` is on `$PATH`. Python: ensure `~/.virtualenvs/debugpy/bin/python -c 'import debugpy'` works (see Install) |
 | Python LSP not seeing project packages | Open Neovim from the directory containing the `Pipfile`; check `:lua print(vim.env.VIRTUAL_ENV)` and run `pipenv install` if the env doesn't exist yet |

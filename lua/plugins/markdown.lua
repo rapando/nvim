@@ -1,8 +1,24 @@
 return {
+  -- mdx: our markdown extras (task progress, table bars, runnable code blocks,
+  -- link checks, text mermaid, outline picker). Lives in this repo under mdx.nvim/
+  {
+    dir = vim.fn.stdpath("config") .. "/mdx.nvim",
+    name = "mdx",
+    ft = { "markdown" },
+    cmd = "Mdx",
+    keys = {
+      { "<leader>ml", "<cmd>Mdx links<CR>", desc = "Check markdown links (project)" },
+      { "<leader>mo", "<cmd>Mdx outline<CR>", desc = "Markdown outline (project)" },
+    },
+    opts = {},
+  },
+
   -- Markdown inline rendering
   {
     "MeanderingProgrammer/render-markdown.nvim",
-    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+    -- mdx plugs into its custom handler API; stay on 8.x so an update can't change that API
+    version = "^8",
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons", "mdx" },
     ft = { "markdown" },
     keys = {
       { "<leader>mr", "<cmd>RenderMarkdown toggle<CR>", desc = "Toggle markdown render" },
@@ -48,6 +64,28 @@ return {
       pipe_table = { preset = "round", cell = "padded" },
       link = { enabled = true },
       sign = { enabled = false },
+      -- mdx draws its extras as part of render-markdown's pass (extends, so builtins still run)
+      custom_handlers = {
+        markdown = {
+          extends = true,
+          parse = function(ctx) return require("mdx").handler().parse(ctx) end,
+        },
+      },
+    },
+  },
+
+  -- Inline images in markdown via the Kitty graphics protocol (Ghostty, kitty).
+  -- Only the image module is enabled; non-PNG formats need ImageMagick (`magick`),
+  -- mermaid fences need `mmdc`, math needs `tectonic` or `pdflatex`.
+  {
+    "folke/snacks.nvim",
+    priority = 1000,
+    lazy = false, -- must be loaded before the first markdown buffer opens
+    opts = {
+      image = {
+        enabled = true,
+        doc = { inline = true, max_width = 80, max_height = 30 },
+      },
     },
   },
 
