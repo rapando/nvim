@@ -32,7 +32,7 @@ return {
               TelescopePrompt = "Telescope",
               trouble = "Trouble",
               aerial = "Outline",
-              toggleterm = "Terminal",
+              floatterm = "Terminal",
               lazy = "Lazy",
               appearance = "Appearance",
             },
@@ -109,19 +109,6 @@ return {
       { "<leader>xd", "<cmd>Trouble diagnostics toggle filter.buf=0<CR>", desc = "Buffer diagnostics" },
       { "<leader>xl", "<cmd>Trouble loclist toggle<CR>", desc = "Location list" },
       { "<leader>xq", "<cmd>Trouble qflist toggle<CR>", desc = "Quickfix list" },
-    },
-  },
-
-  -- Toggleterm (floating terminal)
-  {
-    "akinsho/toggleterm.nvim",
-    version = "*",
-    cmd = "ToggleTerm",
-    keys = { { [[<C-\>]], desc = "Toggle terminal" } },
-    opts = {
-      open_mapping = [[<C-\>]],
-      direction = "float",
-      float_opts = { border = "curved" },
     },
   },
 

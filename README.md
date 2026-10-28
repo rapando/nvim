@@ -89,7 +89,7 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 - **todo-comments**: highlights `TODO`/`FIXME`/`NOTE`/`HACK`.
 - **vim-illuminate**: highlights other occurrences of the word under the cursor.
 - **Trouble**: structured panel for diagnostics, quickfix, loclist.
-- **Toggleterm**: floating terminal.
+- **Floating terminal** (`<C-\>`, our own `lua/config/floatterm.lua`): splits into panes with `<leader>wv` / `<leader>wh`, `<C-h/j/k/l>` moves between them and `<leader>wc` closes one. Each pane is a separate float, because Neovim can't split a floating window inside itself. Press `<C-\><C-n>` first to leave terminal mode.
 
 ## Plugins
 
@@ -119,7 +119,6 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 | `kylechui/nvim-surround` | Surround text objects |
 | `nvim-neotest/neotest` + `neotest-golang`, `neotest-python` | Test runner (Go, Python) |
 | `folke/trouble.nvim` | Diagnostics panel |
-| `akinsho/toggleterm.nvim` | Floating terminal |
 | `folke/todo-comments.nvim` | TODO/FIXME highlights |
 | `RRethy/vim-illuminate` | Cursor-word highlighting |
 | `mbbill/undotree` | Undo tree viewer |
@@ -136,9 +135,10 @@ init.lua                 leader key, then loads the modules below in order
 lua/config/options.lua   editor options, folding, diagnostics display
 lua/config/pipenv.lua    Pipfile virtualenv activation (runs before plugins)
 lua/config/lazy.lua      lazy.nvim bootstrap + setup (imports lua/plugins/)
-lua/config/autocmds.lua  auto-cd to project root
+lua/config/autocmds.lua  auto-cd to project root, live reload of files changed on disk
 lua/config/keymaps.lua   buffer, split, hover and appearance keymaps
 lua/config/appearance.lua  theme + terminal font picker (<leader>ua)
+lua/config/floatterm.lua   floating terminal with split panes (<C-\>)
 lua/plugins/*.lua        one file per area: colorscheme, ui, navigation, editing, lsp,
                          completion, formatting, treesitter, markdown, git, debug, test
 mdx.nvim/                our markdown plugin (loaded by lua/plugins/markdown.lua)
@@ -181,7 +181,7 @@ Drop a new file in `lua/plugins/` returning a list of specs and lazy.nvim picks 
 
 **TODO comments**: `]t`/`[t` next/prev · `<leader>ft` search all
 
-**Terminal**: `<C-\>` toggle floating terminal
+**Terminal**: `<C-\>` toggle floating terminal · `<C-\><C-n>` leave terminal mode · then `<leader>wv` / `<leader>wh` split the pane · `<C-h/j/k/l>` move between panes · `<leader>wc` close the pane
 
 **Appearance**: `<leader>ua` open the Appearance window (`t` theme · `f` font · `-`/`+` font size · `q` close) · `<leader>ut` pick theme · `<leader>uf` pick terminal font
 

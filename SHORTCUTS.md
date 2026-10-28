@@ -151,7 +151,14 @@ Only in buffers with a language server attached.
 
 | Key | Action |
 |-----|--------|
-| `<C-\>` | Toggle floating terminal |
+| `<C-\>` | Toggle floating terminal (hides and restores every pane) |
+| `<C-\><C-n>` | Leave terminal mode, so the keys below work |
+| `<leader>wv` | Split the current pane side by side |
+| `<leader>wh` | Split the current pane top and bottom |
+| `<C-h>` `<C-j>` `<C-k>` `<C-l>` | Move to the pane left / below / above / right |
+| `<leader>wc` | Close the current pane (`exit` in the shell does the same) |
+
+Inside the floating terminal these keys act on its panes. Everywhere else they split and move between editor windows as usual.
 
 ## Appearance
 
