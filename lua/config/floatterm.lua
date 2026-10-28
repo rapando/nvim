@@ -1,5 +1,6 @@
 -- Floating terminal that splits into panes.
 --   <C-\>                  toggle it (normal and terminal mode)
+--   <C-Space>              leave terminal mode, so the keys below work
 --   <leader>wv / <leader>wh  split the current pane side by side / top and bottom
 --   <C-h/j/k/l>            move between panes
 --   <leader>wc             close the current pane
@@ -184,6 +185,16 @@ local function new_buf()
   for _, key in ipairs({ "h", "j", "k", "l" }) do
     map("<C-" .. key .. ">", function() move(key) end, "Move to terminal pane " .. key)
   end
+  -- Ctrl+C reaches the shell in terminal mode already; outside it, send the same
+  -- interrupt to the pane's process and go back to typing in the shell
+  map("<C-c>", function()
+    vim.fn.chansend(vim.bo[buf].channel, "\3")
+    vim.cmd.startinsert()
+  end, "Interrupt the running process")
+  -- One key out of terminal mode. Terminals send Ctrl+Space as <C-Space> or as NUL (<C-@>)
+  for _, lhs in ipairs({ "<C-Space>", "<C-@>" }) do
+    vim.keymap.set("t", lhs, [[<C-\><C-n>]], { buffer = buf, desc = "Leave terminal mode" })
+  end
   return buf
 end
 
@@ -232,8 +243,6 @@ end
 
 function M.setup()
   vim.keymap.set({ "n", "t" }, [[<C-\>]], M.toggle, { desc = "Toggle floating terminal" })
-  -- <C-\> on its own toggles, so map Neovim's built-in exit key explicitly to keep it
-  vim.keymap.set("t", [[<C-\><C-n>]], [[<C-\><C-n>]], { desc = "Terminal normal mode" })
 
   local group = vim.api.nvim_create_augroup("floatterm", { clear = true })
   vim.api.nvim_create_autocmd("WinEnter", {

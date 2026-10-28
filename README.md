@@ -89,7 +89,7 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 - **todo-comments**: highlights `TODO`/`FIXME`/`NOTE`/`HACK`.
 - **vim-illuminate**: highlights other occurrences of the word under the cursor.
 - **Trouble**: structured panel for diagnostics, quickfix, loclist.
-- **Floating terminal** (`<C-\>`, our own `lua/config/floatterm.lua`): splits into panes with `<leader>wv` / `<leader>wh`, `<C-h/j/k/l>` moves between them and `<leader>wc` closes one. Each pane is a separate float, because Neovim can't split a floating window inside itself. Press `<C-\><C-n>` first to leave terminal mode.
+- **Floating terminal** (`<C-\>`, our own `lua/config/floatterm.lua`): splits into panes with `<leader>wv` / `<leader>wh`, `<C-h/j/k/l>` moves between them and `<leader>wc` closes one. Each pane is a separate float, because Neovim can't split a floating window inside itself. Press `<C-Space>` first to leave terminal mode (`i` to type in the shell again).
 
 ## Plugins
 
@@ -181,7 +181,7 @@ Drop a new file in `lua/plugins/` returning a list of specs and lazy.nvim picks 
 
 **TODO comments**: `]t`/`[t` next/prev · `<leader>ft` search all
 
-**Terminal**: `<C-\>` toggle floating terminal · `<C-\><C-n>` leave terminal mode · then `<leader>wv` / `<leader>wh` split the pane · `<C-h/j/k/l>` move between panes · `<leader>wc` close the pane
+**Terminal**: `<C-\>` toggle floating terminal · `<C-Space>` leave terminal mode · then `<leader>wv` / `<leader>wh` split the pane · `<C-h/j/k/l>` move between panes · `<leader>wc` close the pane · `<C-c>` stop the running process (in either mode)
 
 **Appearance**: `<leader>ua` open the Appearance window (`t` theme · `f` font · `-`/`+` font size · `q` close) · `<leader>ut` pick theme · `<leader>uf` pick terminal font
 
