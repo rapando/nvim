@@ -4,42 +4,61 @@ return {
     "nvim-lualine/lualine.nvim",
     event = "VeryLazy",
     dependencies = { "nvim-tree/nvim-web-devicons", "rose-pine/neovim" },
-    opts = {
-      options = {
-        theme = "auto", -- follow whichever colorscheme is active
-        globalstatus = true,
-      },
-      sections = {
-        lualine_x = {
-          {
-            function() return "\u{e73c} " .. vim.fs.basename(vim.env.VIRTUAL_ENV) end,
-            cond = function() return vim.env.VIRTUAL_ENV ~= nil end,
-          },
-          "lsp_status",
-          "filetype",
+    opts = function()
+      -- lualine always draws the focused buffer, even unlisted panels; name them readably
+      local panel_names = {
+        NvimTree = "Explorer",
+        TelescopePrompt = "Telescope",
+        trouble = "Trouble",
+        aerial = "Outline",
+        floatterm = "Terminal",
+        lazy = "Lazy",
+        appearance = "Appearance",
+      }
+
+      ---Current file's path relative to its project root (git root, else cwd)
+      local function project_path()
+        local name = vim.api.nvim_buf_get_name(0)
+        if panel_names[vim.bo.filetype] then return panel_names[vim.bo.filetype] end
+        if name == "" or vim.bo.buftype ~= "" then return "" end
+        local root = vim.fs.root(0, ".git") or vim.fn.getcwd()
+        local rel = vim.fs.relpath(root, name) or vim.fn.fnamemodify(name, ":~")
+        return vim.fs.basename(root) .. " \u{203a} " .. rel
+      end
+
+      return {
+        options = {
+          theme = "auto", -- follow whichever colorscheme is active
+          globalstatus = true,
         },
-      },
-      -- Open buffers, since <S-h>/<S-l> cycle them but nothing shows which are open
-      tabline = {
-        lualine_a = {
-          {
-            "buffers",
-            show_filename_only = true,
-            symbols = { alternate_file = "" },
-            -- lualine always draws the focused buffer, even unlisted panels; name them readably
-            filetype_names = {
-              NvimTree = "Explorer",
-              TelescopePrompt = "Telescope",
-              trouble = "Trouble",
-              aerial = "Outline",
-              floatterm = "Terminal",
-              lazy = "Lazy",
-              appearance = "Appearance",
+        sections = {
+          -- Open buffers, clickable; <S-h>/<S-l> cycle them. The current file's path is in the tabline
+          lualine_c = {
+            {
+              "buffers",
+              show_filename_only = true,
+              symbols = { alternate_file = "" },
+              filetype_names = panel_names,
             },
           },
+          lualine_x = {
+            {
+              function() return "\u{e73c} " .. vim.fs.basename(vim.env.VIRTUAL_ENV) end,
+              cond = function() return vim.env.VIRTUAL_ENV ~= nil end,
+            },
+            "lsp_status",
+            "filetype",
+          },
         },
-      },
-    },
+        tabline = {
+          lualine_c = {
+            { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
+            project_path,
+            { function() return "\u{25cf}" end, cond = function() return vim.bo.modified end },
+          },
+        },
+      }
+    end,
   },
 
   -- Floating cmdline for ":" (messages/notifications left on the defaults)
