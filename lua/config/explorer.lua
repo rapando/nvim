@@ -149,7 +149,7 @@ local function expand_to(rel)
   end
 end
 
-local function render_map()
+local function render_map(keep_row)
   if not S or not vim.api.nvim_buf_is_valid(S.map_buf) then
     return
   end
@@ -203,8 +203,10 @@ local function render_map()
     end
   end
   S.map_entries = draw(S.map_buf, rows)
-  if S.current_row and vim.api.nvim_win_is_valid(S.map_win) then
-    pcall(vim.api.nvim_win_set_cursor, S.map_win, { S.current_row, 0 })
+  -- follow the open file, except when the user is working in the map (fold/unfold)
+  local row = keep_row or S.current_row
+  if row and vim.api.nvim_win_is_valid(S.map_win) then
+    pcall(vim.api.nvim_win_set_cursor, S.map_win, { row, 0 })
   end
 end
 
@@ -216,7 +218,7 @@ local function map_activate()
   end
   if node.dir then
     S.expanded[node.path] = not S.expanded[node.path] or nil
-    render_map()
+    render_map(row)
   elseif node.path then
     open_entry({ path = node.path:sub(1, 1) == "/" and node.path or (S.root .. "/" .. node.path) })
   end
@@ -288,7 +290,16 @@ function M.update_winbar()
     return
   end
   local text = (S.summary or relpath(S.root, vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(S.center)))):gsub("%%", "%%%%")
-  vim.wo[S.center].winbar = "%#TabLineSel# EXPLORE %#TabLineFill# " .. text
+  vim.wo[S.center].winbar = "%#TabLineSel# EXPLORE %#TabLineFill# %<" .. text
+end
+
+-- Calls into the standard library or installed packages only add noise to the panel
+local function in_project(root, entry)
+  local path = entry.path
+  return vim.startswith(path, root .. "/")
+    and not path:find("/%.?venv/")
+    and not path:find("site%-packages", 1, false)
+    and not path:find("/node_modules/", 1, true)
 end
 
 local function to_entry(root, item, range_key)
@@ -355,11 +366,13 @@ local function refresh_context()
       end)
     end
     client:request("callHierarchy/incomingCalls", { item = item }, function(_, res)
-      data.incoming = vim.tbl_map(function(c) return to_entry(S and S.root or "", c.from, "selectionRange") end, res or {})
+      local root = S and S.root or ""
+      data.incoming = vim.tbl_filter(function(e) return in_project(root, e) end, vim.tbl_map(function(c) return to_entry(root, c.from, "selectionRange") end, res or {}))
       done()
     end, buf)
     client:request("callHierarchy/outgoingCalls", { item = item }, function(_, res)
-      data.outgoing = vim.tbl_map(function(c) return to_entry(S and S.root or "", c.to, "selectionRange") end, res or {})
+      local root = S and S.root or ""
+      data.outgoing = vim.tbl_filter(function(e) return in_project(root, e) end, vim.tbl_map(function(c) return to_entry(root, c.to, "selectionRange") end, res or {}))
       done()
     end, buf)
   end, buf)
@@ -389,11 +402,20 @@ local function panel_keys(buf, activate)
   map("<Tab>", M.cycle_focus)
 end
 
+-- <Tab> moves between the columns from the code window too (this shadows <C-i> there while
+-- the mode is open)
+local function map_tab(buf)
+  if S and not S.tab_mapped[buf] then
+    S.tab_mapped[buf] = true
+    vim.keymap.set("n", "<Tab>", M.cycle_focus, { buffer = buf, desc = "Explorer: next column" })
+  end
+end
+
 function M.cycle_focus()
   if not S then
     return
   end
-  local order = { S.map_win, S.center, S.ctx_win }
+  local order = vim.tbl_filter(vim.api.nvim_win_is_valid, { S.map_win, S.center, S.ctx_win })
   local current = vim.api.nvim_get_current_win()
   for i, w in ipairs(order) do
     if w == current then
@@ -417,6 +439,11 @@ function M.close()
     state.timer:close()
   end
   pcall(vim.api.nvim_del_augroup_by_name, "code_explorer")
+  for buf in pairs(state.tab_mapped) do
+    if vim.api.nvim_buf_is_valid(buf) then
+      pcall(vim.keymap.del, "n", "<Tab>", { buffer = buf })
+    end
+  end
   if vim.api.nvim_win_is_valid(state.center) then
     vim.wo[state.center].winbar = state.winbar
   end
@@ -455,6 +482,7 @@ function M.open()
     map_width = narrow and 28 or 34,
     ctx_width = narrow and 36 or 44,
     winbar = vim.wo[center].winbar,
+    tab_mapped = {},
   }
   load_project()
   expand_to(relpath(S.root, vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(center))))
@@ -467,6 +495,7 @@ function M.open()
     open_entry(S.ctx_entries[vim.api.nvim_win_get_cursor(0)[1]])
   end)
   vim.api.nvim_set_current_win(center)
+  map_tab(vim.api.nvim_win_get_buf(center))
   render_map()
   render_context(nil)
 
@@ -483,6 +512,7 @@ function M.open()
     group = group,
     callback = function()
       if S and vim.api.nvim_get_current_win() == S.center and vim.bo.buftype == "" then
+        map_tab(vim.api.nvim_get_current_buf())
         S.last_key = nil
         expand_to(relpath(S.root, vim.api.nvim_buf_get_name(0)))
         render_map()
@@ -496,12 +526,20 @@ function M.open()
     group = group,
     callback = function(args)
       local win = tonumber(args.match)
-      if S and (win == S.center or win == S.map_win or win == S.ctx_win) then
+      if S and (win == S.center or win == S.map_win or (win == S.ctx_win and not S.ctx_released)) then
         vim.schedule(M.close)
       end
     end,
   })
   schedule_refresh()
+end
+
+-- The debug trail takes the context panel's place on the right
+function M.release_context()
+  if S and not S.ctx_released and vim.api.nvim_win_is_valid(S.ctx_win) then
+    S.ctx_released = true
+    vim.api.nvim_win_close(S.ctx_win, true)
+  end
 end
 
 function M.toggle()

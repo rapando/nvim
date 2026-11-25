@@ -60,6 +60,7 @@ local function ensure_panel()
   if panel and vim.api.nvim_win_is_valid(panel.win) then
     return panel
   end
+  pcall(function() require("config.explorer").release_context() end)
   local buf = vim.api.nvim_create_buf(false, true)
   vim.bo[buf].buftype, vim.bo[buf].bufhidden, vim.bo[buf].filetype = "nofile", "wipe", "explorer"
   local prev = vim.api.nvim_get_current_win()
