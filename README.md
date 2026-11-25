@@ -139,6 +139,7 @@ lua/config/autocmds.lua  auto-cd to project root, live reload of files changed o
 lua/config/keymaps.lua   buffer, split, hover and appearance keymaps
 lua/config/appearance.lua  theme + terminal font picker (<leader>ua)
 lua/config/floatterm.lua   floating terminal with split panes (<C-\>)
+lua/config/explorer*.lua   code explorer mode: map + context, import graph, debug trail (<leader>kk/kg/kd)
 lua/plugins/*.lua        one file per area: colorscheme, ui, navigation, editing, lsp,
                          completion, formatting, treesitter, markdown, git, debug, test
 mdx.nvim/                our markdown plugin (loaded by lua/plugins/markdown.lua)
@@ -186,6 +187,8 @@ Drop a new file in `lua/plugins/` returning a list of specs and lazy.nvim picks 
 **Appearance**: `<leader>ua` open the Appearance window (`t` theme · `f` font · `-`/`+` font size · `q` close) · `<leader>ut` pick theme · `<leader>uf` pick terminal font
 
 **File explorer**: `<leader>e` toggle nvim-tree
+
+**Code explorer**: `<leader>kk` toggle explorer mode (project map · code · callers/callees/tests) · `<leader>kg` import graph of this module · `<leader>kd` debug the last failing test (call trail + inline values) · in the panels `<CR>` open/jump · `<Tab>` switch column · `q` close
 
 ## Adding another language later
 

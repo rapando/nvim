@@ -194,13 +194,34 @@ Turns the window into three columns: a project map (with edit counts from the la
 | Key | Mac | Action |
 |-----|-----|--------|
 | `<leader>kk` | `Space k k` | Enter or leave explorer mode |
-| `<CR>` | `Enter` | In the map: open the file or fold the folder. In the context panel: jump to the entry |
-| `<Tab>` | `Tab` | Move between the map, the code and the context panel |
-| `q` | `q` | Leave explorer mode (from either panel) |
-| `<leader>kg` | `Space k g` | Import graph of the current module (Python): importers on the left, imports on the right, cycles in red, and how many files and tests a change can reach |
-
+| `<leader>kg` | `Space k g` | Import graph of the current module (Python) |
 | `<leader>kd` | `Space k d` | Debug the last failing test: runs it under the debugger with a breakpoint on the line that failed (run the tests first with `<leader>tt` / `<leader>tf`) |
 
-When the debugger stops (from `<leader>kd` or any other session), a call trail opens on the right with only your own code's frames, the paused one marked, and the values of the variables on the paused line show inline. In the trail: `<CR>` jumps to a frame, `z` shows library frames, `q` closes.
+In the map, `←3` after a file means three other files import it.
 
-In the map, `←3` after a file means three other files import it. In the graph: `d` shows what the imports import, `c` keeps only cycle members, `f` re-centers on the module under the cursor, `<CR>` opens it, `r` rescans, `q` closes.
+**Inside explorer mode (map and context panel)**
+
+| Key | Mac | Action |
+|-----|-----|--------|
+| `<CR>` | `Enter` | Map: open the file or fold the folder. Context panel: jump to the entry |
+| `<Tab>` | `Tab` | Move between the map, the code and the context panel |
+| `q` | `q` | Leave explorer mode |
+
+**Import graph** (importers on the left, imports on the right, cycles in red, plus how many files and tests a change can reach)
+
+| Key | Mac | Action |
+|-----|-----|--------|
+| `d` | `d` | Also show what the imports import |
+| `c` | `c` | Keep only the modules in a cycle |
+| `f` | `f` | Re-center the graph on the module under the cursor |
+| `<CR>` | `Enter` | Open the module under the cursor |
+| `r` | `r` | Rescan the project |
+| `q` / `<Esc>` | `q` / `Esc` | Close |
+
+**Debug trail** (opens on the right when the debugger stops, from `<leader>kd` or any other session; shows only your own code's frames, and the values of the variables on the paused line appear inline)
+
+| Key | Mac | Action |
+|-----|-----|--------|
+| `<CR>` | `Enter` | Jump to the frame |
+| `z` | `z` | Show or hide library frames |
+| `q` | `q` | Close the trail |
