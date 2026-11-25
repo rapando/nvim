@@ -142,11 +142,26 @@ lua/config/floatterm.lua   floating terminal with split panes (<C-\>)
 lua/config/explorer*.lua   code explorer mode: map + context, import graph, debug trail (<leader>kk/kg/kd)
 lua/plugins/*.lua        one file per area: colorscheme, ui, navigation, editing, lsp,
                          completion, formatting, treesitter, markdown, git, debug, test
+docs/demo/               recipe for the code explorer GIF (VHS tape, Dockerfile, sample project)
 mdx.nvim/                our markdown plugin (loaded by lua/plugins/markdown.lua)
 Makefile                 `make test-md` runs the mdx smoke test
 ```
 
 Drop a new file in `lua/plugins/` returning a list of specs and lazy.nvim picks it up.
+
+## Code explorer
+
+One key turns the editor into a map of the project: file tree with edit counts and import counts on the left, your code in the middle, and a panel on the right that follows the cursor and lists the callers, callees and tests of the symbol under it. From there you can draw the import graph of a module (cycles in red) and debug the last failing test with a call trail of your own code and the values on the paused line.
+
+![Code explorer demo: explorer mode, import graph, and debugging a failing test, with the keys shown on screen](docs/demo/demo.gif)
+
+| Key | Action |
+|-----|--------|
+| `<leader>kk` | Toggle explorer mode (`<Tab>` moves between the columns, `<CR>` opens or jumps, `q` leaves) |
+| `<leader>kg` | Import graph of the current module (Python): `d` depth, `c` cycles only, `f` re-center, `q` close |
+| `<leader>kd` | Debug the last failing test (run it first with `<leader>tt` / `<leader>tf`) |
+
+Full key list in [SHORTCUTS.md](SHORTCUTS.md#code-explorer-mode). The recording is made by `docs/demo/build.sh` (Docker and ffmpeg needed).
 
 ## Shortcuts
 
