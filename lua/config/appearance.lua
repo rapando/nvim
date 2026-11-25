@@ -1,6 +1,9 @@
 -- Appearance: pick a colorscheme (applied live, saved across sessions) and the terminal font.
--- Neovim in a terminal can't draw its own font, so font changes are written to Ghostty's
--- config and applied through Ghostty's AppleScript `perform action` (Ghostty >= 1.3).
+-- Neovim in a terminal can't draw its own font, so font changes go to the terminal itself:
+--   Ghostty: written to its config, applied through AppleScript `perform action` (>= 1.3).
+--   WezTerm: written to ~/.config/wezterm/nvim-appearance.lua, which your wezterm.lua loads
+--            (see wezterm_snippet below); WezTerm hot-reloads it.
+--   Terminal.app: set through AppleScript on the front window and the default profile.
 local M = {}
 
 M.themes = {
@@ -23,6 +26,7 @@ local opts = {
   state_file = vim.fn.stdpath("data") .. "/appearance.json",
   ghostty_config = nil, -- auto-detected
   apply_to_terminal = true, -- false: write the config but don't tell Ghostty to reload
+  wezterm_file = nil, -- auto: <config dir>/wezterm/nvim-appearance.lua
 }
 
 local BLOCK_START = "# >>> nvim appearance (managed by ~/.config/nvim) >>>"
@@ -236,6 +240,141 @@ local function ghostty_action(action)
   end)
 end
 
+-- WezTerm ------------------------------------------------------------------------------------
+
+local function in_wezterm()
+  return vim.env.TERM_PROGRAM == "WezTerm" or vim.env.WEZTERM_PANE ~= nil or vim.env.WEZTERM_EXECUTABLE ~= nil
+end
+
+local function wezterm_file()
+  if opts.wezterm_file then
+    return opts.wezterm_file
+  end
+  local xdg = vim.env.XDG_CONFIG_HOME or (vim.env.HOME .. "/.config")
+  return xdg .. "/wezterm/nvim-appearance.lua"
+end
+
+local wezterm_snippet = [[
+-- in your wezterm.lua, after `local config = wezterm.config_builder()`:
+local nvim_appearance = (os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.config")) .. "/wezterm/nvim-appearance.lua"
+wezterm.add_to_config_reload_watch_list(nvim_appearance)
+local ok, a = pcall(dofile, nvim_appearance)
+if ok then
+  if a.family then config.font = wezterm.font(a.family) end
+  if a.size then config.font_size = a.size end
+end]]
+
+local function wezterm_hooked()
+  local xdg = vim.env.XDG_CONFIG_HOME or (vim.env.HOME .. "/.config")
+  for _, p in ipairs({ vim.env.WEZTERM_CONFIG_FILE, vim.env.HOME .. "/.wezterm.lua", xdg .. "/wezterm/wezterm.lua" }) do
+    if p and vim.uv.fs_stat(p) then
+      local f = io.open(p)
+      local text = f and f:read("*a") or ""
+      if f then
+        f:close()
+      end
+      return text:find("nvim-appearance", 1, true) ~= nil, p
+    end
+  end
+  return false, nil
+end
+
+local function write_wezterm(settings)
+  local path = wezterm_file()
+  local parts = {}
+  if settings.family then
+    parts[#parts + 1] = ("  family = %q,"):format(settings.family)
+  end
+  if settings.size then
+    parts[#parts + 1] = ("  size = %d,"):format(settings.size)
+  end
+  vim.fn.mkdir(vim.fs.dirname(path), "p")
+  vim.fn.writefile({ "-- managed by ~/.config/nvim (appearance.lua)", "return {", unpack(parts), "}" }, path)
+  if not wezterm_hooked() then
+    vim.notify(
+      "WezTerm doesn't load " .. path .. " yet. Add this to your wezterm.lua:\n\n" .. wezterm_snippet,
+      vim.log.levels.WARN
+    )
+  end
+end
+
+-- Terminal.app -------------------------------------------------------------------------------
+
+local function in_apple_terminal()
+  return vim.env.TERM_PROGRAM == "Apple_Terminal" or vim.env.__CFBundleIdentifier == "com.apple.Terminal"
+end
+
+local function osa(script)
+  if vim.fn.executable("osascript") == 0 then
+    return nil
+  end
+  local out = vim.system({ "osascript", "-e", script }, { text = true }):wait()
+  if out.code ~= 0 then
+    vim.notify("Terminal.app didn't accept the change: " .. vim.trim(out.stderr or ""), vim.log.levels.WARN)
+    return nil
+  end
+  return vim.trim(out.stdout or "")
+end
+
+-- Terminal.app wants a PostScript name ("JetBrainsMonoNF-Regular"); resolve it from the family
+local function postscript_name(family)
+  local out = vim.system({ "fc-match", "-f", "%{postscriptname}", family }, { text = true }):wait()
+  local name = vim.trim(out.stdout or "")
+  return name ~= "" and name or family
+end
+
+local function apple_terminal_current()
+  local res = { family = nil, size = nil }
+  local out = osa(
+    'tell application "Terminal" to return (font size of current settings of selected tab of front window) as text'
+  )
+  res.size = tonumber(out)
+  return res
+end
+
+local function apple_terminal_apply(t)
+  if not opts.apply_to_terminal then
+    return
+  end
+  local cmds = {}
+  for _, target in ipairs({ "current settings of selected tab of front window", "default settings" }) do
+    if t.family then
+      cmds[#cmds + 1] = ('set font name of %s to "%s"'):format(target, postscript_name(t.family))
+    end
+    if t.size then
+      cmds[#cmds + 1] = ("set font size of %s to %d"):format(target, t.size)
+    end
+  end
+  if #cmds > 0 then
+    osa('tell application "Terminal"\n' .. table.concat(cmds, "\n") .. "\nend tell")
+  end
+end
+
+-- Terminals we can switch fonts in
+local function backend()
+  if in_ghostty() and ghostty_bin() then
+    return "ghostty"
+  elseif in_wezterm() then
+    return "wezterm"
+  elseif in_apple_terminal() then
+    return "terminal"
+  end
+end
+
+local function terminal_name()
+  return ({ wezterm = "WezTerm", terminal = "Terminal.app" })[backend()] or "Ghostty"
+end
+
+local function current_font()
+  if backend() == "ghostty" then
+    return ghostty_current()
+  end
+  if backend() == "terminal" then
+    return apple_terminal_current()
+  end
+  return { family = nil, size = nil } -- WezTerm: only our managed values are known
+end
+
 local function managed()
   return read_state().terminal or {}
 end
@@ -243,6 +382,14 @@ end
 local function set_terminal(patch)
   local t = vim.tbl_extend("force", managed(), patch)
   write_state({ terminal = t })
+  if backend() == "wezterm" then
+    write_wezterm(t)
+    return -- WezTerm hot-reloads the watched file
+  end
+  if backend() == "terminal" then
+    apple_terminal_apply(patch)
+    return
+  end
   write_ghostty(t)
   if patch.size then
     ghostty_action("set_font_size:" .. patch.size)
@@ -253,14 +400,27 @@ local function set_terminal(patch)
 end
 
 function M.list_fonts()
-  local bin = ghostty_bin()
-  if not bin then
-    return {}
+  local lines = {}
+  if backend() ~= "ghostty" then
+    -- WezTerm / Terminal.app: fontconfig's family list ("A,B" aliases: keep the first name)
+    if vim.fn.executable("fc-list") == 0 then
+      return {}
+    end
+    local out = vim.system({ "fc-list", ":", "family" }, { text = true }):wait()
+    for line in (out.stdout or ""):gmatch("[^\n]+") do
+      lines[#lines + 1] = vim.trim(line:match("^([^,]+)"))
+    end
+  else
+    local out = vim.system({ ghostty_bin(), "+list-fonts" }, { text = true }):wait()
+    for line in (out.stdout or ""):gmatch("[^\n]+") do
+      if not line:match("^%s") then
+        lines[#lines + 1] = line
+      end
+    end
   end
-  local out = vim.system({ bin, "+list-fonts" }, { text = true }):wait()
   local fonts, seen = {}, {}
-  for line in (out.stdout or ""):gmatch("[^\n]+") do
-    if not line:match("^%s") and not seen[line] then
+  for _, line in ipairs(lines) do
+    if line ~= "" and not seen[line] then
       seen[line] = true
       fonts[#fonts + 1] = { family = line, nerd = line:find("Nerd Font") ~= nil }
     end
@@ -275,8 +435,8 @@ function M.list_fonts()
 end
 
 function M.pick_font(on_done)
-  if not in_ghostty() or not ghostty_bin() then
-    vim.notify("The font is set by your terminal; switching it from Neovim needs Ghostty", vim.log.levels.WARN)
+  if not backend() then
+    vim.notify("The font is set by your terminal; switching it from Neovim needs Ghostty, WezTerm or Terminal.app", vim.log.levels.WARN)
     return
   end
   local pickers = require("telescope.pickers")
@@ -285,7 +445,7 @@ function M.pick_font(on_done)
   local actions = require("telescope.actions")
   local action_state = require("telescope.actions.state")
 
-  local current = ghostty_current().family
+  local current = managed().family or current_font().family
   local fonts = M.list_fonts()
   -- the config may name a family loosely ("Iosevka Term" for "IosevkaTerm Nerd Font Mono")
   local function squash(name)
@@ -300,7 +460,7 @@ function M.pick_font(on_done)
 
   pickers
     .new(require("telescope.themes").get_dropdown({ previewer = false, layout_config = { width = 44 } }), {
-      prompt_title = "Terminal font  (Ghostty · <CR> apply)",
+      prompt_title = ("Terminal font  (%s · <CR> apply)"):format(terminal_name()),
       default_selection_index = index or 1,
       finder = finders.new_table({
         results = fonts,
@@ -317,7 +477,7 @@ function M.pick_font(on_done)
           if entry then
             set_terminal({ family = entry.value.family })
             if not entry.value.nerd then
-              vim.notify("Not a Nerd Font: file and git icons will fall back to Ghostty's built-in symbols")
+              vim.notify("Not a Nerd Font: file and git icons will fall back to the terminal's built-in symbols")
             end
           end
           if on_done then
@@ -331,7 +491,7 @@ function M.pick_font(on_done)
 end
 
 function M.change_font_size(delta)
-  local size = managed().size or ghostty_current().size or 13
+  local size = managed().size or current_font().size or (backend() == "wezterm" and 12 or 13)
   size = math.max(8, math.min(32, size + delta))
   set_terminal({ size = size })
   return size
@@ -343,17 +503,17 @@ function M.open()
   local width = 52
   local buf = vim.api.nvim_create_buf(false, true)
   vim.bo[buf].filetype = "appearance"
-  local font = in_ghostty() and ghostty_current() or {}
+  local font = backend() and current_font() or {}
   local size = managed().size or font.size
 
   local function render()
     local family = managed().family or font.family or "terminal default"
-    local font_row = in_ghostty() and family or "set by your terminal"
+    local font_row = backend() and family or "set by your terminal"
     local lines = {
       "",
       ("  Theme   %-30s  t"):format(theme_label(M.current or "")),
       ("  Font    %-30s  f"):format(font_row:sub(1, 30)),
-      ("  Size    %-30s  - +"):format(in_ghostty() and tostring(size or "?") or "—"),
+      ("  Size    %-30s  - +"):format(backend() and tostring(size or "?") or "—"),
       "",
       "  t theme   f font   -/+ size   q close",
     }
@@ -404,7 +564,7 @@ function M.open()
   end)
   for lhs, delta in pairs({ ["-"] = -1, ["+"] = 1, ["="] = 1 }) do
     map(lhs, function()
-      if in_ghostty() then
+      if backend() then
         size = M.change_font_size(delta)
         render()
       end
