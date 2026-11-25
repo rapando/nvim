@@ -334,7 +334,12 @@ local function refresh_context()
 
   local client = vim.lsp.get_clients({ bufnr = buf, method = "textDocument/prepareCallHierarchy" })[1]
   if not client then
-    render_context({ message = "No language server with call hierarchy for this file" })
+    local ft = vim.bo[buf].filetype
+    local hint = ({
+      go = "gopls is not running. Install: go install golang.org/x/tools/gopls@latest",
+      python = "pyright is not running. Install: npm i -g pyright",
+    })[ft]
+    render_context({ message = hint or "No language server with call hierarchy for this file" })
     return
   end
   local params = vim.lsp.util.make_position_params(S.center, client.offset_encoding)
