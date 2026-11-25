@@ -219,6 +219,7 @@ This config wires up Go and Python. To bring back a language, add:
 | Problem | Fix |
 |---------|-----|
 | LSP not working | `which gopls`, then `:LspInfo` |
+| Code explorer says "gopls is not running" (or pyright) | Install the server (`go install golang.org/x/tools/gopls@latest`, `brew install pyright`), make sure `~/go/bin` is on `PATH`, reopen the file |
 | Completion not appearing | Confirm LSP is running (`:LspInfo`), try `<C-Space>` manually |
 | Auto-pairs not working | Check `:Lazy` shows `nvim-autopairs` loaded; try a new line or after whitespace |
 | Formatter not found | Install it, verify with `which <formatter>`, restart Neovim |

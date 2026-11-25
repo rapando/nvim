@@ -189,7 +189,7 @@ Inside the Appearance window:
 
 ## Code explorer mode
 
-Turns the window into three columns: a project map (with edit counts from the last 30 days), your code, and a context panel that follows the cursor and lists the callers, callees and tests of the symbol under it. Needs a language server with call hierarchy (pyright, gopls). `<leader>kd` needs a debug adapter for the language (debugpy for Python, delve for Go).
+Turns the window into three columns: a project map (with edit counts from the last 30 days), your code, and a context panel that follows the cursor and lists the callers, callees and tests of the symbol under it. Needs a language server with call hierarchy running for the file: `go install golang.org/x/tools/gopls@latest` for Go (with `~/go/bin` on `PATH`), `brew install pyright` for Python. Without one the panel says which server is missing; `:LspInfo` shows what is attached. `<leader>kd` needs a debug adapter for the language (debugpy for Python, delve for Go).
 
 | Key | Mac | Action |
 |-----|-----|--------|
