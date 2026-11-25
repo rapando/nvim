@@ -29,3 +29,4 @@ vim.keymap.set("n", "<leader>uf", function() require("config.appearance").pick_f
 
 -- Code explorer mode: project map | code | context (callers, callees, tests)
 vim.keymap.set("n", "<leader>kk", function() require("config.explorer").toggle() end, { desc = "Code explorer mode" })
+vim.keymap.set("n", "<leader>kg", function() require("config.explorer_graph").open_current() end, { desc = "Import graph of this module" })

@@ -197,3 +197,6 @@ Turns the window into three columns: a project map (with edit counts from the la
 | `<CR>` | `Enter` | In the map: open the file or fold the folder. In the context panel: jump to the entry |
 | `<Tab>` | `Tab` | Move between the map, the code and the context panel |
 | `q` | `q` | Leave explorer mode (from either panel) |
+| `<leader>kg` | `Space k g` | Import graph of the current module (Python): importers on the left, imports on the right, cycles in red, and how many files and tests a change can reach |
+
+In the map, `←3` after a file means three other files import it. In the graph: `d` shows what the imports import, `c` keeps only cycle members, `f` re-centers on the module under the cursor, `<CR>` opens it, `r` rescans, `q` closes.

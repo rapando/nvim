@@ -133,6 +133,8 @@ local function load_project()
     files = vim.tbl_map(function(p) return relpath(S.root, p) end, vim.tbl_filter(function(p) return vim.fn.isdirectory(p) == 0 end, files))
   end
   S.tree = build_tree(files)
+  local ok, graph = pcall(function() return require("config.explorer_graph").get(S.root) end)
+  S.graph = ok and #graph.files > 0 and graph or nil
   S.edits = {}
   local log = git_lines(S.root, { "log", "--since=30.days", "--name-only", "--pretty=format:" })
   for _, f in ipairs(log or {}) do
@@ -167,13 +169,13 @@ local function render_map()
         end
       else
         local n = S.edits[child.path]
+        local fan = S.graph and S.graph.importers[child.path] and vim.tbl_count(S.graph.importers[child.path]) or 0
         local text = pad .. "  " .. child.name
         local row = { text, nil, child }
-        if n then
-          local mark = n >= 10 and "●" or n >= 4 and "●" or "·"
-          local tail = (" %s%d"):format(mark, n)
+        if n or fan > 0 then
+          local tail = (fan > 0 and (" ←%d"):format(fan) or "") .. (n and (" %s%d"):format(n >= 4 and "●" or "·", n) or "")
           row[1] = text .. string.rep(" ", math.max(1, S.map_width - vim.fn.strdisplaywidth(text) - vim.fn.strdisplaywidth(tail))) .. tail
-          row[4] = { { #text, #row[1], n >= 10 and "DiagnosticError" or n >= 4 and "DiagnosticWarn" or "Comment" } }
+          row[4] = { { #text, #row[1], n and n >= 10 and "DiagnosticError" or n and n >= 4 and "DiagnosticWarn" or "Comment" } }
         end
         if child.path == current then
           row[2] = "Visual"
