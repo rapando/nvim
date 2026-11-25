@@ -10,6 +10,7 @@ return {
       "nvim-neotest/neotest-python",
     },
     keys = {
+      { "<leader>kd", function() require("config.explorer_debug").debug_last_failure() end, desc = "Debug last failing test" },
       { "<leader>tt", function() require("neotest").run.run() end, desc = "Run nearest test" },
       { "<leader>tf", function() require("neotest").run.run(vim.fn.expand("%")) end, desc = "Run file tests" },
       { "<leader>ts", function() require("neotest").summary.toggle() end, desc = "Toggle test summary" },
@@ -17,6 +18,7 @@ return {
     },
     config = function()
       require("neotest").setup({
+        consumers = { code_explorer = require("config.explorer_debug").consumer },
         adapters = {
           require("neotest-golang")({}),
           require("neotest-python")({ runner = "pytest" }),
