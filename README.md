@@ -158,7 +158,7 @@ One key turns the editor into a map of the project: file tree with edit counts a
 | Key | Action |
 |-----|--------|
 | `<leader>kk` | Toggle explorer mode (`<Tab>` moves between the columns, `<CR>` opens or jumps, `q` leaves) |
-| `<leader>kg` | Import graph of the current module (Python): `d` depth, `c` cycles only, `f` re-center, `q` close |
+| `<leader>kg` | Import graph of the current module (Python file or Go package): `d` depth, `c` cycles only, `f` re-center, `q` close |
 | `<leader>kd` | Debug the last failing test (run it first with `<leader>tt` / `<leader>tf`) |
 
 Full key list in [SHORTCUTS.md](SHORTCUTS.md#code-explorer-mode). The recording is made by `docs/demo/build.sh` (Docker and ffmpeg needed).

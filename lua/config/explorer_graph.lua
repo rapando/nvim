@@ -1,7 +1,7 @@
--- Import graph for code explorer mode (Python).
+-- Import graph for code explorer mode (Python files, Go packages).
 --   <leader>kg  graph of the module in the current buffer: importers on the left, imports on the right
--- Scans `import` / `from ... import` lines (no language server needed), finds cycles, and counts
--- the files and tests a change can reach.
+-- Scans import lines (no language server needed), finds cycles, and counts what a change can reach.
+-- Python: one node per file. Go: one node per package directory, resolved through go.mod.
 local M = {}
 
 local ns = vim.api.nvim_create_namespace("code_explorer_graph")
@@ -102,6 +102,102 @@ function M.build(root)
     end
   end
 
+  -- Go: one node per package directory; imports resolved through the go.mod files
+  local nodes = vim.list_extend({}, files)
+  local gout = vim.system({ "git", "-C", root, "ls-files", "--cached", "--others", "--exclude-standard", "*.go", "*go.mod" }, { text = true }):wait()
+  local gofiles, gomods = {}, {}
+  for _, rel in ipairs(vim.split(gout.stdout or "", "\n", { trimempty = true })) do
+    if rel:match("go%.mod$") then
+      gomods[#gomods + 1] = rel
+    elseif rel:match("%.go$") then
+      gofiles[#gofiles + 1] = rel
+    end
+  end
+  g.test_files, g.pkg_file, g.edge_file = {}, {}, {}
+  if #gofiles > 0 then
+    local modules = {}
+    for _, rel in ipairs(gomods) do
+      local f = io.open(root .. "/" .. rel)
+      local text = f and f:read("*a") or ""
+      if f then
+        f:close()
+      end
+      local path = text:match("module%s+(%S+)")
+      if path then
+        local dir = vim.fs.dirname(rel)
+        modules[#modules + 1] = { path = (path:gsub('"', "")), dir = dir == "." and "" or dir }
+      end
+    end
+    table.sort(modules, function(a, b) return #a.path > #b.path end) -- nested modules first
+
+    local seen = {}
+    for _, rel in ipairs(gofiles) do
+      local dir = vim.fs.dirname(rel)
+      if not seen[dir] then
+        seen[dir] = true
+        nodes[#nodes + 1] = dir
+        g.imports[dir], g.importers[dir] = {}, {}
+      end
+      if rel:match("_test%.go$") then
+        g.test_files[dir] = (g.test_files[dir] or 0) + 1
+      else
+        g.pkg_file[dir] = g.pkg_file[dir] or rel
+      end
+    end
+
+    local function resolve_go(path)
+      for _, m in ipairs(modules) do
+        local suffix
+        if path == m.path then
+          suffix = ""
+        elseif vim.startswith(path, m.path .. "/") then
+          suffix = path:sub(#m.path + 2)
+        end
+        if suffix then
+          local dir = (m.dir == "" and suffix) or (suffix == "" and m.dir) or (m.dir .. "/" .. suffix)
+          dir = dir == "" and "." or dir
+          return g.imports[dir] and dir or nil
+        end
+      end
+    end
+
+    for _, rel in ipairs(gofiles) do
+      if not rel:match("_test%.go$") then
+        local dir = vim.fs.dirname(rel)
+        local f = io.open(root .. "/" .. rel)
+        if f then
+          local inblock, lnum = false, 0
+          for line in f:lines() do
+            lnum = lnum + 1
+            local code = line:gsub("//.*$", "")
+            local path
+            if inblock then
+              if code:match("^%s*%)") then
+                inblock = false
+              else
+                path = code:match('"([^"]+)"') or code:match("`([^`]+)`")
+              end
+            elseif code:match("^%s*import%s*%(") then
+              inblock = true
+            elseif code:match("^%s*import%s") then
+              path = code:match('"([^"]+)"')
+            elseif code:match("^func%s") or code:match("^type%s") then
+              break
+            end
+            local to = path and resolve_go(path)
+            if to and to ~= dir and not g.imports[dir][to] then
+              g.imports[dir][to] = lnum
+              g.importers[to][dir] = lnum
+              g.edge_file[dir .. ">" .. to] = rel
+            end
+          end
+          f:close()
+        end
+      end
+    end
+  end
+  g.files = nodes
+
   -- strongly connected components (Tarjan): a component of 2+ files is an import cycle
   local index, stack, on, idx, low, comp = 0, {}, {}, {}, {}, {}
   local function strong(v)
@@ -129,7 +225,7 @@ function M.build(root)
       end
     end
   end
-  for _, rel in ipairs(files) do
+  for _, rel in ipairs(nodes) do
     if not idx[rel] then
       strong(rel)
     end
@@ -158,7 +254,14 @@ local function in_cycle(g, rel)
   return g.comp[rel] and #g.comp[rel] > 1
 end
 
+local function is_go(node)
+  return not node:match("%.py$")
+end
+
 local function display(rel)
+  if is_go(rel) then
+    return rel == "." and "(root)" or rel
+  end
   return (rel:gsub("%.py$", ""):gsub("/__init__$", ""):gsub("^src/", ""):gsub("/", "."))
 end
 
@@ -203,7 +306,7 @@ end
 
 local function blast_radius(g, rel)
   local seen, queue, head = { [rel] = true }, { rel }, 1
-  local files, tests = 0, 0
+  local files, tests = 0, g.test_files[rel] or 0
   while head <= #queue do
     local v = queue[head]
     head = head + 1
@@ -212,7 +315,10 @@ local function blast_radius(g, rel)
         seen[w] = true
         queue[#queue + 1] = w
         local lower = w:lower()
-        if lower:find("test") then
+        if is_go(w) then
+          files = files + 1
+          tests = tests + (g.test_files[w] or 0)
+        elseif lower:find("test") then
           tests = tests + 1
         else
           files = files + 1
@@ -342,7 +448,8 @@ local function build_rows(g, focus, opts)
   local files, tests = blast_radius(g, focus)
   rows[#rows + 1] = { { "" } }
   rows[#rows + 1] = { { " Blast radius", "Title" } }
-  rows[#rows + 1] = { { ("  a change here can reach %d file%s and %d test file%s"):format(files, files == 1 and "" or "s", tests, tests == 1 and "" or "s") } }
+  local unit = is_go(focus) and "package" or "file"
+  rows[#rows + 1] = { { ("  a change here can reach %d %s%s and %d test file%s"):format(files, unit, files == 1 and "" or "s", tests, tests == 1 and "" or "s") } }
   local cycle = find_cycle(g, focus)
   rows[#rows + 1] = { { "" } }
   if cycle then
@@ -351,8 +458,9 @@ local function build_rows(g, focus, opts)
     rows[#rows + 1] = { { "  " .. table.concat(names, " → ") } }
     for i = 1, #cycle - 1 do
       local lnum = g.imports[cycle[i]][cycle[i + 1]]
+      local file = g.edge_file[cycle[i] .. ">" .. cycle[i + 1]] or cycle[i]
       rows[#rows + 1] = {
-        { ("   %s:%d  imports %s"):format(cycle[i], lnum, display(cycle[i + 1])), "Comment", cycle[i] },
+        { ("   %s:%d  imports %s"):format(file, lnum, display(cycle[i + 1])), "Comment", file },
       }
     end
     rows[#rows + 1] = { { "  Move what the files share into a third module that both import.", "Comment" } }
@@ -413,7 +521,7 @@ function M.open(root, rel)
   M.close()
   local g = M.get(root)
   if not g.imports[rel] then
-    vim.notify("Import graph supports Python files for now", vim.log.levels.WARN)
+    vim.notify("Import graph supports Python and Go files", vim.log.levels.WARN)
     return
   end
   local buf = vim.api.nvim_create_buf(false, true)
@@ -436,7 +544,7 @@ function M.open(root, rel)
     vim.keymap.set("n", lhs, fn, { buffer = buf, nowait = true })
   end
   local function go(path)
-    local file = state.root .. "/" .. path
+    local file = state.root .. "/" .. (state.g.pkg_file[path] or path)
     M.close()
     vim.cmd.edit(vim.fn.fnameescape(file))
   end
@@ -485,7 +593,8 @@ function M.open_current()
     vim.notify("Open a file inside the project first", vim.log.levels.WARN)
     return
   end
-  M.open(root, name:sub(#root + 2))
+  local rel = name:sub(#root + 2)
+  M.open(root, rel:match("%.go$") and vim.fs.dirname(rel) or rel)
 end
 
 return M

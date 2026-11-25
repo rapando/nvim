@@ -189,15 +189,15 @@ Inside the Appearance window:
 
 ## Code explorer mode
 
-Turns the window into three columns: a project map (with edit counts from the last 30 days), your code, and a context panel that follows the cursor and lists the callers, callees and tests of the symbol under it. Needs a language server with call hierarchy (pyright, gopls).
+Turns the window into three columns: a project map (with edit counts from the last 30 days), your code, and a context panel that follows the cursor and lists the callers, callees and tests of the symbol under it. Needs a language server with call hierarchy (pyright, gopls). `<leader>kd` needs a debug adapter for the language (debugpy for Python, delve for Go).
 
 | Key | Mac | Action |
 |-----|-----|--------|
 | `<leader>kk` | `Space k k` | Enter or leave explorer mode |
-| `<leader>kg` | `Space k g` | Import graph of the current module (Python) |
+| `<leader>kg` | `Space k g` | Import graph of the current module (Python file or Go package) |
 | `<leader>kd` | `Space k d` | Debug the last failing test: runs it under the debugger with a breakpoint on the line that failed (run the tests first with `<leader>tt` / `<leader>tf`) |
 
-In the map, `←3` after a file means three other files import it.
+In the map, `←3` means three other files (Python) or packages (Go, shown on the folder) import it.
 
 **Inside explorer mode (map and context panel)**
 

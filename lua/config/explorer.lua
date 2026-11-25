@@ -161,9 +161,10 @@ local function render_map(keep_row)
       local pad = string.rep("  ", depth + 1)
       if child.dir then
         local open = S.expanded[child.path]
-        local count = ("%d"):format(child.files)
+        local fan = S.graph and S.graph.importers[child.path] and vim.tbl_count(S.graph.importers[child.path]) or 0
+        local count = fan > 0 and ("←%d  %d"):format(fan, child.files) or tostring(child.files)
         local text = ("%s%s %s"):format(pad, open and "▾" or "▸", child.name)
-        rows[#rows + 1] = { text .. string.rep(" ", math.max(1, S.map_width - vim.fn.strdisplaywidth(text) - #count - 1)) .. count, "Directory", child, { { #text, #text + 50, "Comment" } } }
+        rows[#rows + 1] = { text .. string.rep(" ", math.max(1, S.map_width - vim.fn.strdisplaywidth(text) - vim.fn.strdisplaywidth(count) - 1)) .. count, "Directory", child, { { #text, #text + 50, "Comment" } } }
         if open then
           walk(child, depth + 1)
         end
