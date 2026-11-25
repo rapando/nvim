@@ -20,6 +20,7 @@ return {
       { "<leader>fb", function() require("telescope.builtin").buffers() end, desc = "Find buffers" },
       { "<leader>fh", function() require("telescope.builtin").help_tags() end, desc = "Help tags" },
       { "<leader>/", function() require("telescope.builtin").current_buffer_fuzzy_find() end, desc = "Search in file" },
+      { "grr", function() require("telescope.builtin").lsp_references() end, desc = "References (preview)" },
     },
     config = function()
       local telescope = require("telescope")
@@ -35,6 +36,36 @@ return {
           },
         },
         pickers = {
+          lsp_references = {
+            previewer = true,
+            include_declaration = false,
+            show_line = true,
+            trim_text = true,
+            fname_width = 40,
+            layout_strategy = "horizontal",
+            layout_config = { horizontal = { preview_width = 0.6 } },
+            attach_mappings = function(prompt_bufnr, map)
+              local actions = require("telescope.actions")
+              -- Open the reference (this closes the picker), then flash the target line
+              local function open_and_flash()
+                actions.select_default(prompt_bufnr)
+                vim.schedule(function()
+                  local row = vim.api.nvim_win_get_cursor(0)[1] - 1
+                  local hl = vim.hl or vim.highlight
+                  hl.range(0, vim.api.nvim_create_namespace("ref_flash"), "Visual", { row, 0 }, { row, -1 },
+                    { timeout = 800, regtype = "V" })
+                end)
+              end
+              local function click()
+                actions.mouse_click(prompt_bufnr)
+                open_and_flash()
+              end
+              map({ "i", "n" }, "<CR>", open_and_flash)
+              map({ "i", "n" }, "<LeftMouse>", click)
+              map({ "i", "n" }, "<2-LeftMouse>", click)
+              return true
+            end,
+          },
           find_files = {
             previewer = true,
             -- --hidden makes fd walk .git/ too; exclude it explicitly
