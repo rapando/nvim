@@ -26,3 +26,6 @@ vim.keymap.set("n", "<leader>wc", "<C-w>c", { desc = "Close split" })
 vim.keymap.set("n", "<leader>ua", function() require("config.appearance").open() end, { desc = "Appearance" })
 vim.keymap.set("n", "<leader>ut", function() require("config.appearance").pick_theme() end, { desc = "Pick theme" })
 vim.keymap.set("n", "<leader>uf", function() require("config.appearance").pick_font() end, { desc = "Pick terminal font" })
+
+-- Code explorer mode: project map | code | context (callers, callees, tests)
+vim.keymap.set("n", "<leader>kk", function() require("config.explorer").toggle() end, { desc = "Code explorer mode" })

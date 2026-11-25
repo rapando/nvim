@@ -107,6 +107,7 @@ return {
         { "<leader>f", group = "find" },
         { "<leader>g", group = "git" },
         { "<leader>h", group = "harpoon" },
+        { "<leader>k", group = "code explorer" },
         { "<leader>m", group = "markdown" },
         { "<leader>s", group = "search/replace" },
         { "<leader>t", group = "test" },

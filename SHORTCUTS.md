@@ -186,3 +186,14 @@ Inside the Appearance window:
 | Key | Mac | Action |
 |-----|-----|--------|
 | `<leader>e` | `Space e` | Toggle nvim-tree |
+
+## Code explorer mode
+
+Turns the window into three columns: a project map (with edit counts from the last 30 days), your code, and a context panel that follows the cursor and lists the callers, callees and tests of the symbol under it. Needs a language server with call hierarchy (pyright, gopls).
+
+| Key | Mac | Action |
+|-----|-----|--------|
+| `<leader>kk` | `Space k k` | Enter or leave explorer mode |
+| `<CR>` | `Enter` | In the map: open the file or fold the folder. In the context panel: jump to the entry |
+| `<Tab>` | `Tab` | Move between the map, the code and the context panel |
+| `q` | `q` | Leave explorer mode (from either panel) |
