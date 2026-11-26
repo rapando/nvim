@@ -8,7 +8,7 @@ return {
     config = function()
       local ts = require("nvim-treesitter")
       ts.install({
-        "go", "gomod", "gosum", "gowork", "python", "toml", "lua", "vim", "vimdoc", "query",
+        "go", "gomod", "gosum", "gowork", "python", "c", "cpp", "cmake", "make", "toml", "lua", "vim", "vimdoc", "query",
         "markdown", "markdown_inline", "json", "sql", "yaml", "bash", "html",
       })
 

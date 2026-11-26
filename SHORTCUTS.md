@@ -189,15 +189,15 @@ Inside the Appearance window:
 
 ## Code explorer mode
 
-Turns the window into three columns: a project map (with edit counts from the last 30 days), your code, and a context panel that follows the cursor and lists the callers, callees and tests of the symbol under it. Needs a language server with call hierarchy running for the file: `go install golang.org/x/tools/gopls@latest` for Go (with `~/go/bin` on `PATH`), `brew install pyright` for Python. Without one the panel says which server is missing; `:LspInfo` shows what is attached. `<leader>kd` needs a debug adapter for the language (debugpy for Python, delve for Go).
+Turns the window into three columns: a project map (with edit counts from the last 30 days), your code, and a context panel that follows the cursor and lists the callers, callees and tests of the symbol under it. Needs a language server with call hierarchy running for the file: `go install golang.org/x/tools/gopls@latest` for Go (with `~/go/bin` on `PATH`), `brew install pyright` for Python, `brew install llvm` for C/C++ (clangd also needs a `compile_commands.json`, see the README). Without one the panel says which server is missing; `:LspInfo` shows what is attached. `<leader>kd` needs a debug adapter for the language (debugpy for Python, delve for Go, lldb-dap for C/C++; tests for C/C++ run through CTest).
 
 | Key | Mac | Action |
 |-----|-----|--------|
 | `<leader>kk` | `Space k k` | Enter or leave explorer mode |
-| `<leader>kg` | `Space k g` | Import graph of the current module (Python file or Go package) |
+| `<leader>kg` | `Space k g` | Import graph of the current module (Python file, Go package or C/C++ file) |
 | `<leader>kd` | `Space k d` | Debug the last failing test: runs it under the debugger with a breakpoint on the line that failed (run the tests first with `<leader>tt` / `<leader>tf`) |
 
-In the map, `←3` means three other files (Python) or packages (Go, shown on the folder) import it.
+In the map, `←3` means three other files (Python, C/C++, where it counts `#include`s) or packages (Go, shown on the folder) import it.
 
 **Inside explorer mode (map and context panel)**
 

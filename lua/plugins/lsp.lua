@@ -11,6 +11,13 @@ return {
       })
       vim.lsp.enable("gopls")
 
+      -- C / C++ (clangd reads compile_commands.json; see README)
+      vim.lsp.config("clangd", {
+        capabilities = require("cmp_nvim_lsp").default_capabilities(),
+        cmd = { "clangd", "--background-index", "--clang-tidy", "--header-insertion=iwyu", "--completion-style=detailed" },
+      })
+      vim.lsp.enable("clangd")
+
       -- Python (pyright for types/navigation, ruff for lint + quick fixes)
       vim.lsp.config("pyright", {
         capabilities = require("cmp_nvim_lsp").default_capabilities(),

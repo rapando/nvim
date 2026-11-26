@@ -1,7 +1,7 @@
--- Import graph for code explorer mode (Python files, Go packages).
+-- Import graph for code explorer mode (Python files, Go packages, C/C++ files).
 --   <leader>kg  graph of the module in the current buffer: importers on the left, imports on the right
 -- Scans import lines (no language server needed), finds cycles, and counts what a change can reach.
--- Python: one node per file. Go: one node per package directory, resolved through go.mod.
+-- Python and C/C++ (#include): one node per file. Go: one node per package directory, resolved through go.mod.
 local M = {}
 
 local ns = vim.api.nvim_create_namespace("code_explorer_graph")
@@ -26,6 +26,13 @@ local function package_of(rel)
     dir = vim.fs.dirname(rel)
   end
   return (dir == "." and "" or dir)
+end
+
+local C_EXT = { c = true, h = true, cc = true, cpp = true, cxx = true, ["c++"] = true, hh = true, hpp = true, hxx = true, ["h++"] = true, ipp = true, tpp = true, inl = true }
+
+function M.is_c(rel)
+  local ext = rel:match("%.([%w+]+)$")
+  return ext ~= nil and C_EXT[ext] == true
 end
 
 function M.build(root)
@@ -196,6 +203,77 @@ function M.build(root)
       end
     end
   end
+  -- C / C++: one node per file; #include lines resolved against the project's own files
+  local cout = vim.system({ "git", "-C", root, "ls-files", "--cached", "--others", "--exclude-standard",
+    "*.c", "*.h", "*.cc", "*.cpp", "*.cxx", "*.c++", "*.hh", "*.hpp", "*.hxx", "*.h++", "*.ipp", "*.tpp", "*.inl" }, { text = true }):wait()
+  local cfiles, cset, cbase = {}, {}, {}
+  for _, rel in ipairs(vim.split(cout.stdout or "", "\n", { trimempty = true })) do
+    if M.is_c(rel) and not rel:match("^build/") and not rel:match("^cmake%-build") and not rel:find("/CMakeFiles/", 1, true) and not rel:match("^CMakeFiles/") then
+      cfiles[#cfiles + 1] = rel
+      cset[rel] = true
+      local base = vim.fs.basename(rel)
+      cbase[base] = cbase[base] or {}
+      table.insert(cbase[base], rel)
+      nodes[#nodes + 1] = rel
+      g.imports[rel], g.importers[rel] = {}, {}
+    end
+  end
+  local function resolve_c(from, inc)
+    local dir = vim.fs.dirname(from)
+    local candidates = { dir == "." and inc or (dir .. "/" .. inc), inc }
+    for _, prefix in ipairs({ "include", "inc", "src", "lib" }) do
+      candidates[#candidates + 1] = prefix .. "/" .. inc
+    end
+    for _, c in ipairs(candidates) do
+      c = vim.fs.normalize(c)
+      if cset[c] then
+        return c
+      end
+    end
+    -- <proj/foo.h> where proj/ sits under some include directory: match on the path tail
+    local best
+    for _, rel in ipairs(cbase[vim.fs.basename(inc)] or {}) do
+      if rel == inc or vim.endswith(rel, "/" .. inc) then
+        if not best or #rel < #best then
+          best = rel
+        end
+      end
+    end
+    return best
+  end
+  for _, rel in ipairs(cfiles) do
+    local f = io.open(root .. "/" .. rel)
+    if f then
+      local lnum, incomment = 0, false
+      for line in f:lines() do
+        lnum = lnum + 1
+        if incomment then
+          incomment = not line:find("%*/")
+        elseif line:match("^%s*/%*") and not line:find("%*/") then
+          incomment = true
+        else
+          local inc = line:match('^%s*#%s*include%s*"([^"]+)"') or line:match("^%s*#%s*include%s*<([^>]+)>")
+          local to = inc and resolve_c(rel, inc)
+          if to and to ~= rel and not g.imports[rel][to] then
+            g.imports[rel][to] = lnum
+            g.importers[to][rel] = lnum
+          end
+        end
+      end
+      f:close()
+    end
+  end
+  -- foo.cpp and the foo.h it includes are two halves of one unit: whoever includes the header
+  -- depends on the .cpp, so a change in the .cpp reaches them too
+  g.sibling = {}
+  for _, rel in ipairs(cfiles) do
+    local stem = vim.fs.basename(rel):match("^(.*)%.[^.]+$")
+    for to in pairs(g.imports[rel]) do
+      if to ~= rel and vim.fs.basename(to):match("^(.*)%.[^.]+$") == stem and not rel:match("%.h[hpx+]*$") then
+        g.sibling[rel] = to
+      end
+    end
+  end
   g.files = nodes
 
   -- strongly connected components (Tarjan): a component of 2+ files is an import cycle
@@ -255,12 +333,15 @@ local function in_cycle(g, rel)
 end
 
 local function is_go(node)
-  return not node:match("%.py$")
+  return not node:match("%.py$") and not M.is_c(node)
 end
 
 local function display(rel)
   if is_go(rel) then
     return rel == "." and "(root)" or rel
+  end
+  if M.is_c(rel) then
+    return rel
   end
   return (rel:gsub("%.py$", ""):gsub("/__init__$", ""):gsub("^src/", ""):gsub("/", "."))
 end
@@ -310,7 +391,17 @@ local function blast_radius(g, rel)
   while head <= #queue do
     local v = queue[head]
     head = head + 1
-    for w in pairs(g.importers[v]) do
+    local from = { g.importers[v] }
+    if g.sibling and g.sibling[v] then
+      from[2] = g.importers[g.sibling[v]]
+    end
+    local reach = {}
+    for _, set in ipairs(from) do
+      for w in pairs(set) do
+        reach[w] = true
+      end
+    end
+    for w in pairs(reach) do
       if not seen[w] then
         seen[w] = true
         queue[#queue + 1] = w
@@ -521,7 +612,7 @@ function M.open(root, rel)
   M.close()
   local g = M.get(root)
   if not g.imports[rel] then
-    vim.notify("Import graph supports Python and Go files", vim.log.levels.WARN)
+    vim.notify("Import graph supports Python, Go and C/C++ files", vim.log.levels.WARN)
     return
   end
   local buf = vim.api.nvim_create_buf(false, true)

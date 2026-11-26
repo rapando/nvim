@@ -1,6 +1,6 @@
 # Neovim Configuration
 
-A focused Neovim setup for Go and Python development with LSP, autocomplete, fuzzy finding, and debugging.
+A focused Neovim setup for Go, Python and C/C++ development with LSP, autocomplete, fuzzy finding, and debugging.
 
 ## Install
 
@@ -32,6 +32,23 @@ python3 -m venv ~/.virtualenvs/debugpy
 ~/.virtualenvs/debugpy/bin/pip install debugpy
 ```
 
+**C / C++** (clangd, clang-format, lldb-dap debugger, CTest runner)
+
+```bash
+brew install llvm cmake        # clangd, clang-format, lldb-dap; cmake also provides ctest
+# llvm is keg-only: put its tools on PATH (add to ~/.zshrc)
+export PATH="$(brew --prefix llvm)/bin:$PATH"
+```
+
+Per project:
+
+- **clangd needs `compile_commands.json`**. With CMake: `cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON`, then `ln -s build/compile_commands.json .` in the project root. Without CMake, `bear -- make` (`brew install bear`) writes it.
+- **Debug symbols**: build with `-g` (`-DCMAKE_BUILD_TYPE=Debug`) or breakpoints won't stop. On macOS, lldb-dap can also come from recent Xcode (found through `xcrun`), but Homebrew's `llvm` is the safer choice.
+- **Tests** go through CTest (GoogleTest, Catch2, doctest or CppUTest). Register them with `gtest_discover_tests()` / `catch_discover_tests()`, build, and keep the build directory (it holds `CTestTestfile.cmake`). Neotest does not build for you, so rebuild before `<leader>tt`.
+- **Code explorer**: clangd builds its index in the background, so "Called by" fills in a few seconds after the first open of a project.
+- Test files are `foo_test.cpp`, `foo_tests.cpp`, `test_foo.cpp` or any `.cpp`/`.cc`/`.cxx` under a `tests/` folder (`lua/plugins/test.lua`).
+- The tree-sitter parsers (`c`, `cpp`) install themselves on first use, which needs `tree-sitter-cli` (above).
+
 Make sure `~/go/bin` is on your `$PATH`. Install `pytest` inside each project's env (`pipenv install --dev pytest`) for the test runner.
 
 **Config**
@@ -47,11 +64,11 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 
 ## Features
 
-- **LSP**: gopls (Go), pyright + ruff (Python)
+- **LSP**: gopls (Go), pyright + ruff (Python), clangd (C/C++)
 - **Pipenv**: if the working directory has a `Pipfile`, its virtualenv is activated (`VIRTUAL_ENV`/`PATH`) at startup and on every directory change (including the automatic project-root `cd`), so pyright, the debugger, tests and `:terminal` all use it. Lookup checks `.venv/` then `~/.local/share/virtualenvs` (or `$WORKON_HOME`), falling back to `pipenv --venv`.
 - **Completion**: nvim-cmp — sources are LSP, LuaSnip snippets, buffer words, and file paths, in that priority order. `<C-Space>` opens the menu manually, `<Tab>`/`<S-Tab>` cycle, `<CR>` confirms the item you selected (it never auto-picks the first one).
 - **Auto-pairs**: nvim-autopairs closes `()`, `[]`, `{}`, `""`, `''`, `` `` `` as you type, treesitter-aware, and cooperates with completion confirm.
-- **Auto-format on save**: conform.nvim — `goimports`+`golines` (Go), `ruff` organize imports + format (Python), `stylua` (Lua), `prettier` (Markdown/JSON/YAML). Manual format: `<leader>cf`. Falls back to LSP formatting if no dedicated formatter is found.
+- **Auto-format on save**: conform.nvim — `goimports`+`golines` (Go), `ruff` organize imports + format (Python), `clang-format` (C/C++), `stylua` (Lua), `prettier` (Markdown/JSON/YAML). Manual format: `<leader>cf`. Falls back to LSP formatting if no dedicated formatter is found.
 - **Treesitter**: syntax highlighting, indentation, folds.
 - **Diagnostics**: messages shown inline (virtual text) next to the code, sorted by severity, with icons in the sign column; `<leader>cd` opens the full message in a float.
 - **Markdown**: render-markdown.nvim renders headings (tiered colours/backgrounds, framed H1/H2), code blocks, tables and checklists in normal mode; the cursor line shows raw markdown. `<leader>mr` toggles rendering, `<leader>mp` opens a live browser preview with real typography. Images (`![alt](path.png)`) render inline below their line in Ghostty/kitty via snacks.nvim.
@@ -73,9 +90,9 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 - **nvim-ufo**: LSP/treesitter-aware folding; `K` peeks fold content before falling back to hover.
 
 ### Debugging & Testing
-- **nvim-dap** + **nvim-dap-go**: full debugger with UI for Go (delve).
+- **nvim-dap** + **nvim-dap-go**: full debugger with UI for Go (delve). C/C++ runs through `lldb-dap` (adapter `lldb`, launch config "Launch executable" asks for the binary).
 - **nvim-dap-python**: same debugger keybindings for Python (debugpy); runs your code with the active Pipenv interpreter. UI opens/closes automatically with the session.
-- **Neotest** + **neotest-golang**: inline test runner, pass/fail shown in the gutter. **neotest-python** (pytest) uses the same keys for Python.
+- **Neotest** + **neotest-golang**: inline test runner, pass/fail shown in the gutter. **neotest-python** (pytest) uses the same keys for Python, and **neotest-ctest** for C/C++ (GoogleTest, Catch2, doctest, CppUTest through CTest).
 
 ### Git
 - **Lazygit**: full git TUI.
@@ -111,13 +128,13 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 | `nvim-treesitter/nvim-treesitter` | Syntax highlighting/indent/folds |
 | `nvim-lualine/lualine.nvim` | Status line + buffer tabs |
 | `folke/noice.nvim` + `MunifTanjim/nui.nvim` | Floating `:` cmdline (messages/notify overrides disabled) |
-| `mfussenegger/nvim-dap` + `nvim-dap-ui`, `leoluz/nvim-dap-go`, `mfussenegger/nvim-dap-python` | Debugger (Go, Python) |
+| `mfussenegger/nvim-dap` + `nvim-dap-ui`, `leoluz/nvim-dap-go`, `mfussenegger/nvim-dap-python` | Debugger (Go, Python, C/C++ via lldb-dap) |
 | `lewis6991/gitsigns.nvim` | Git signs & blame |
 | `folke/which-key.nvim` | Keybinding popup |
 | `ThePrimeagen/harpoon` (branch `harpoon2`) | File bookmarks |
 | `folke/flash.nvim` | Jump motion |
 | `kylechui/nvim-surround` | Surround text objects |
-| `nvim-neotest/neotest` + `neotest-golang`, `neotest-python` | Test runner (Go, Python) |
+| `nvim-neotest/neotest` + `neotest-golang`, `neotest-python`, `neotest-ctest` | Test runner (Go, Python, C/C++) |
 | `folke/trouble.nvim` | Diagnostics panel |
 | `folke/todo-comments.nvim` | TODO/FIXME highlights |
 | `RRethy/vim-illuminate` | Cursor-word highlighting |
@@ -158,7 +175,7 @@ One key turns the editor into a map of the project: file tree with edit counts a
 | Key | Action |
 |-----|--------|
 | `<leader>kk` | Toggle explorer mode (`<Tab>` moves between the columns, `<CR>` opens or jumps, `q` leaves) |
-| `<leader>kg` | Import graph of the current module (Python file or Go package): `d` depth, `c` cycles only, `f` re-center, `q` close |
+| `<leader>kg` | Import graph of the current module (Python file, Go package or C/C++ file): `d` depth, `c` cycles only, `f` re-center, `q` close |
 | `<leader>kd` | Debug the last failing test (run it first with `<leader>tt` / `<leader>tf`) |
 
 Full key list in [SHORTCUTS.md](SHORTCUTS.md#code-explorer-mode). The recording is made by `docs/demo/build.sh` (Docker and ffmpeg needed).
@@ -219,7 +236,8 @@ This config wires up Go and Python. To bring back a language, add:
 | Problem | Fix |
 |---------|-----|
 | LSP not working | `which gopls`, then `:LspInfo` |
-| Code explorer says "gopls is not running" (or pyright) | Install the server (`go install golang.org/x/tools/gopls@latest`, `brew install pyright`), make sure `~/go/bin` is on `PATH`, reopen the file |
+| Code explorer says "gopls is not running" (or pyright, clangd) | Install the server (`go install golang.org/x/tools/gopls@latest`, `brew install pyright`, `brew install llvm`), make sure `~/go/bin` / llvm's `bin` is on `PATH`, reopen the file |
+| clangd reports "file not found" for headers, or no callers in C/C++ | It has no `compile_commands.json`: see the C / C++ install notes. Check with `:LspInfo` |
 | Completion not appearing | Confirm LSP is running (`:LspInfo`), try `<C-Space>` manually |
 | Auto-pairs not working | Check `:Lazy` shows `nvim-autopairs` loaded; try a new line or after whitespace |
 | Formatter not found | Install it, verify with `which <formatter>`, restart Neovim |
@@ -231,7 +249,7 @@ This config wires up Go and Python. To bring back a language, add:
 | Markdown images don't show | Needs Ghostty or kitty (not Terminal.app/iTerm2). In tmux add `set -g allow-passthrough on`. PNG works as-is; other formats need `brew install imagemagick`, mermaid needs `npm i -g @mermaid-js/mermaid-cli`. Run `:checkhealth snacks` |
 | mdx extras missing or doubled after `:Lazy update` | Run `make test-md`, then `:checkhealth mdx`. render-markdown is pinned to `^8`; if a release broke the handler, `git checkout lazy-lock.json` + `:Lazy restore` |
 | Want a different theme list | Edit `M.themes` at the top of `lua/config/appearance.lua`; add the theme plugin to `lua/plugins/colorscheme.lua` with `lazy = true` |
-| DAP not stopping at breakpoints | Go: ensure `dlv` is on `$PATH`. Python: ensure `~/.virtualenvs/debugpy/bin/python -c 'import debugpy'` works (see Install) |
+| DAP not stopping at breakpoints | Go: ensure `dlv` is on `$PATH`. C/C++: `which lldb-dap` (or `xcrun -f lldb-dap`) must find it, and the binary needs `-g`. Python: ensure `~/.virtualenvs/debugpy/bin/python -c 'import debugpy'` works (see Install) |
 | Python LSP not seeing project packages | Open Neovim from the directory containing the `Pipfile`; check `:lua print(vim.env.VIRTUAL_ENV)` and run `pipenv install` if the env doesn't exist yet |
 | Closed file's tab still shows at the top | `:q` only closes the window, not the buffer — the tabline lists loaded buffers regardless of whether a window shows them. Use `<leader>bd` (`:bdelete`) to actually drop the buffer and its tab. Careful: `:bdelete` closes the buffer in *every* split showing it, not just the current one. |
 

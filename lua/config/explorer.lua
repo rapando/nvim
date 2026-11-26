@@ -3,7 +3,7 @@
 --   <leader>kk  toggle the mode
 -- Left: file tree with edit counts from the last 30 days (git).
 -- Right: for the symbol under the cursor, who calls it, what it calls, and the tests among its
--- callers. Comes from the language server's call hierarchy (pyright, gopls, ...).
+-- callers. Comes from the language server's call hierarchy (pyright, gopls, clangd, ...).
 local M = {}
 
 local ns = vim.api.nvim_create_namespace("code_explorer")
@@ -26,7 +26,7 @@ end
 
 local function is_test(rel)
   rel = rel:lower()
-  return rel:find("/tests?/") ~= nil or rel:find("^tests?/") ~= nil or rel:find("test_[^/]*$") ~= nil or rel:find("_test%.[^/]*$") ~= nil
+  return rel:find("/tests?/") ~= nil or rel:find("^tests?/") ~= nil or rel:find("test_[^/]*$") ~= nil or rel:find("_tests?%.[^/]*$") ~= nil
 end
 
 local function git_lines(root, args)
@@ -338,6 +338,8 @@ local function refresh_context()
     local hint = ({
       go = "gopls is not running. Install: go install golang.org/x/tools/gopls@latest",
       python = "pyright is not running. Install: npm i -g pyright",
+      c = "clangd is not running. Install: brew install llvm (then put its bin on PATH)",
+      cpp = "clangd is not running. Install: brew install llvm (then put its bin on PATH)",
     })[ft]
     render_context({ message = hint or "No language server with call hierarchy for this file" })
     return

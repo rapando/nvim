@@ -1,5 +1,5 @@
 return {
-  -- Debugger (Go, Python)
+  -- Debugger (Go, Python, C/C++)
   {
     "mfussenegger/nvim-dap",
     dependencies = {
@@ -30,6 +30,44 @@ return {
           or vim.fn.executable("debugpy-adapter") == 1 and "debugpy-adapter"
           or "python3"
       )
+
+      -- C / C++ through lldb-dap (ships with LLVM: `brew install llvm`, or recent Xcode)
+      local lldb = vim.fn.exepath("lldb-dap")
+      if lldb == "" then
+        for _, path in ipairs({ "/opt/homebrew/opt/llvm/bin/lldb-dap", "/usr/local/opt/llvm/bin/lldb-dap" }) do
+          if vim.fn.executable(path) == 1 then
+            lldb = path
+            break
+          end
+        end
+      end
+      if lldb == "" then
+        lldb = vim.fn.glob("/usr/lib/llvm-*/bin/lldb-dap", false, true)[1] or "" -- Debian/Ubuntu
+      end
+      if lldb == "" then
+        local out = vim.system({ "xcrun", "-f", "lldb-dap" }, { text = true }):wait()
+        lldb = out.code == 0 and vim.trim(out.stdout or "") or ""
+      end
+      if lldb == "" then
+        lldb = vim.fn.exepath("lldb-vscode") -- older LLVM name
+      end
+      if lldb ~= "" then
+        dap.adapters.lldb = { type = "executable", command = lldb, name = "lldb" }
+        local launch = {
+          {
+            name = "Launch executable",
+            type = "lldb",
+            request = "launch",
+            program = function()
+              return vim.fn.input("Executable: ", vim.fn.getcwd() .. "/", "file")
+            end,
+            cwd = "${workspaceFolder}",
+            stopOnEntry = false,
+            args = {},
+          },
+        }
+        dap.configurations.c, dap.configurations.cpp = launch, launch
+      end
 
       require("config.explorer_debug").attach() -- call trail + inline values when stopped
 

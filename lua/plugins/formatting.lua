@@ -16,6 +16,8 @@ return {
       formatters_by_ft = {
         go = { "goimports", "golines" },
         python = { "ruff_organize_imports", "ruff_format" },
+        c = { "clang-format" },
+        cpp = { "clang-format" },
         lua = { "stylua" },
         markdown = { "prettier" },
         json = { "prettier" },
