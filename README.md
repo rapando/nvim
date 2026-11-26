@@ -224,7 +224,7 @@ Full key list in [SHORTCUTS.md](SHORTCUTS.md#code-explorer-mode). The recording 
 
 ## Adding another language later
 
-This config wires up Go and Python. To bring back a language, add:
+This config wires up Go, Python and C/C++. To bring back a language, add:
 1. An LSP block in the `nvim-lspconfig` config (`lua/plugins/lsp.lua`) (`vim.lsp.config(...)` + `vim.lsp.enable(...)`).
 2. A formatter entry under `formatters_by_ft` in the `conform.nvim` config (`lua/plugins/formatting.lua`).
 3. Its treesitter parser to the `install({...})` list in `lua/plugins/treesitter.lua` (or just open a file — missing parsers auto-install).
