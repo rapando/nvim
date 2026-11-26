@@ -13,8 +13,9 @@ return {
       },
     },
     opts = {
+      formatters = { golangci_fmt = require("config.golangci").formatter },
       formatters_by_ft = {
-        go = { "goimports", "golines" },
+        go = function(buf) return require("config.golangci").go_formatters(buf) end,
         python = { "ruff_organize_imports", "ruff_format" },
         c = { "clang-format" },
         cpp = { "clang-format" },

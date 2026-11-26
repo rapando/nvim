@@ -21,6 +21,7 @@ go install golang.org/x/tools/gopls@latest
 go install golang.org/x/tools/cmd/goimports@latest
 go install github.com/golangci/golines@latest
 go install github.com/go-delve/delve/cmd/dlv@latest
+brew install golangci-lint   # v2; only used in projects that have a .golangci.yml
 ```
 
 **Python** (LSP, linter/formatter, Pipfile envs, debugger)
@@ -68,6 +69,7 @@ Update later with `:Lazy update` and `:TSUpdate`. Uninstall with `rm -rf ~/.conf
 - **Pipenv**: if the working directory has a `Pipfile`, its virtualenv is activated (`VIRTUAL_ENV`/`PATH`) at startup and on every directory change (including the automatic project-root `cd`), so pyright, the debugger, tests and `:terminal` all use it. Lookup checks `.venv/` then `~/.local/share/virtualenvs` (or `$WORKON_HOME`), falling back to `pipenv --venv`.
 - **Completion**: nvim-cmp — sources are LSP, LuaSnip snippets, buffer words, and file paths, in that priority order. `<C-Space>` opens the menu manually, `<Tab>`/`<S-Tab>` cycle, `<CR>` confirms the item you selected (it never auto-picks the first one).
 - **Auto-pairs**: nvim-autopairs closes `()`, `[]`, `{}`, `""`, `''`, `` `` `` as you type, treesitter-aware, and cooperates with completion confirm.
+- **Project lint rules (Go)**: if a Go project has a `.golangci.yml` / `.yaml` / `.toml` / `.json` (searched upward from the file), `golangci-lint run` with that config reports its findings as diagnostics on open and save (linter name shown as the code). If the config also has a `formatters:` section (golangci-lint v2), format on save and `<leader>cf` use `golangci-lint fmt`, so the project's own gofumpt/gci/goimports settings apply instead of the defaults. Projects without a config are untouched.
 - **Auto-format on save**: conform.nvim — `goimports`+`golines` (Go), `ruff` organize imports + format (Python), `clang-format` (C/C++), `stylua` (Lua), `prettier` (Markdown/JSON/YAML). Manual format: `<leader>cf`. Falls back to LSP formatting if no dedicated formatter is found.
 - **Treesitter**: syntax highlighting, indentation, folds.
 - **Diagnostics**: messages shown inline (virtual text) next to the code, sorted by severity, with icons in the sign column; `<leader>cd` opens the full message in a float.
@@ -235,6 +237,7 @@ This config wires up Go, Python and C/C++. To bring back a language, add:
 
 | Problem | Fix |
 |---------|-----|
+| No golangci-lint findings in a Go project | Needs `golangci-lint` on `PATH` and a `.golangci.yml` above the file. Run `golangci-lint run` in the project to see its own output; errors from the tool show as a warning notification |
 | LSP not working | `which gopls`, then `:LspInfo` |
 | Code explorer says "gopls is not running" (or pyright, clangd) | Install the server (`go install golang.org/x/tools/gopls@latest`, `brew install pyright`, `brew install llvm`), make sure `~/go/bin` / llvm's `bin` is on `PATH`, reopen the file |
 | clangd reports "file not found" for headers, or no callers in C/C++ | It has no `compile_commands.json`: see the C / C++ install notes. Check with `:LspInfo` |
